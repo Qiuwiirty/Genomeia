@@ -6,20 +6,18 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import io.github.some_example_name.old.screens.GlobalSettings.UI_SCALE
-import io.github.some_example_name.old.good_one.utils.drawArrowWithRotationAngle
-import io.github.some_example_name.old.world_logic.CellManager
-import io.github.some_example_name.old.world_logic.cells.controllerIndexesLol
-import io.github.some_example_name.old.world_logic.cells.keyStates
-import io.github.some_example_name.old.world_logic.cells.previousKeyStates
-import io.github.some_example_name.old.world_logic.ups
+import io.github.some_example_name.old.ui.screens.GlobalSettings.UI_SCALE
+import io.github.some_example_name.old.core.utils.drawArrowWithRotationAngle
+import io.github.some_example_name.old.systems.simulation.SimulationSystem
 import kotlin.math.round
+/*
 
+//TODO хз что за класс, рефаткорить
 class PlayGround(
 //    private val genomeEditor: GenomeEditorRefactored,
     private val spriteBatch: SpriteBatch,
     private val font: BitmapFont,
-    private val cellManager: CellManager
+    private val simulationSystem: SimulationSystem
 ) {
 
     var zoomOffsetX = 0f
@@ -29,18 +27,18 @@ class PlayGround(
     var drawRays = false
 
     fun screenToWorld(screenX: Float, screenY: Float): Pair<Float, Float> {
-        val scale = cellManager.zoomManager.zoomScale * cellManager.zoomManager.shaderCellSize
-        val worldX = (screenX / scale) + cellManager.zoomManager.screenOffsetX
+        val scale = simulationSystem.zoomManager.zoomScale * simulationSystem.zoomManager.shaderCellSize
+        val worldX = (screenX / scale) + simulationSystem.zoomManager.screenOffsetX
         val worldY =
-            ((Gdx.graphics.height - screenY) / scale) + cellManager.zoomManager.screenOffsetY // Инверсия Y
+            ((Gdx.graphics.height - screenY) / scale) + simulationSystem.zoomManager.screenOffsetY // Инверсия Y
         return worldX to worldY
     }
 
     fun screenToWorldPC(screenX: Float, screenY: Float): Pair<Float, Float> {
         val worldX =
-            (screenX / (cellManager.zoomManager.zoomScale * cellManager.zoomManager.shaderCellSize)) + cellManager.zoomManager.screenOffsetX
+            (screenX / (simulationSystem.zoomManager.zoomScale * simulationSystem.zoomManager.shaderCellSize)) + simulationSystem.zoomManager.screenOffsetX
         val worldY =
-            (screenY / (cellManager.zoomManager.zoomScale * cellManager.zoomManager.shaderCellSize)) + cellManager.zoomManager.screenOffsetY
+            (screenY / (simulationSystem.zoomManager.zoomScale * simulationSystem.zoomManager.shaderCellSize)) + simulationSystem.zoomManager.screenOffsetY
         return worldX to worldY
     }
 
@@ -77,12 +75,14 @@ class PlayGround(
 //            }
 //        }
         val updateTimeRounded = round(1e5f/ups) /100f
-        if (cellManager.grabbedCell != -1) {
+        if (simulationSystem.grabbedCell != -1) {
             spriteBatch.begin()
             font.data.setScale(UI_SCALE)
             font.draw(
                 spriteBatch,
-                "FPS: ${Gdx.graphics.framesPerSecond}\n" + "UPS: ${ups}\n" + "Update Time: ${updateTimeRounded}ms\n" + "Cells: ${cellManager.cellLastId/* - 1535*/ - cellManager.deadCellsStackAmount} Links ${cellManager.linksLastId - cellManager.deadLinksStackAmount}\n" + "NeuronImpulseInput ${cellManager.neuronImpulseInput[cellManager.grabbedCell]}\n" + "NeuronImpulseOutput ${cellManager.neuronImpulseOutput[cellManager.grabbedCell]}\n",
+                "FPS: ${Gdx.graphics.framesPerSecond}\n" + "UPS: ${ups}\n" + "Update Time: ${updateTimeRounded}ms\n" + "Cells: ${simulationSystem.cellLastId*/
+/* - 1535*//*
+ - simulationSystem.deadCellsStackAmount} Links ${simulationSystem.linksLastId - simulationSystem.deadLinksStackAmount}\n" + "NeuronImpulseInput ${simulationSystem.neuronImpulseInput[simulationSystem.grabbedCell]}\n" + "NeuronImpulseOutput ${simulationSystem.neuronImpulseOutput[simulationSystem.grabbedCell]}\n",
                 30f,
                 120f
             )
@@ -93,7 +93,9 @@ class PlayGround(
             font.data.setScale(UI_SCALE)
             font.draw(
                 spriteBatch,
-                "FPS: ${Gdx.graphics.framesPerSecond}\n"  + "UPS: ${ups}\n" + "Update Time: ${updateTimeRounded}ms\n" + "Cells: ${cellManager.cellLastId/* - 1535*/ - cellManager.deadCellsStackAmount} Links ${cellManager.linksLastId - cellManager.deadLinksStackAmount}\n",
+                "FPS: ${Gdx.graphics.framesPerSecond}\n"  + "UPS: ${ups}\n" + "Update Time: ${updateTimeRounded}ms\n" + "Cells: ${simulationSystem.cellLastId*/
+/* - 1535*//*
+ - simulationSystem.deadCellsStackAmount} Links ${simulationSystem.linksLastId - simulationSystem.deadLinksStackAmount}\n",
                 30f,
                 120f
             )
@@ -103,26 +105,26 @@ class PlayGround(
     }
 
     fun update(renderer: ShapeRenderer) {
-        val xOffset = cellManager.zoomManager.screenOffsetX
-        val yOffset = cellManager.zoomManager.screenOffsetY
-        val zoom = cellManager.zoomManager.zoomScale * cellManager.zoomManager.shaderCellSize
-        val cameraEndX = cellManager.zoomManager.screenOffsetX + Gdx.graphics.width / zoom
-        val cameraEndY = cellManager.zoomManager.screenOffsetY + Gdx.graphics.height / zoom
+        val xOffset = simulationSystem.zoomManager.screenOffsetX
+        val yOffset = simulationSystem.zoomManager.screenOffsetY
+        val zoom = simulationSystem.zoomManager.zoomScale * simulationSystem.zoomManager.shaderCellSize
+        val cameraEndX = simulationSystem.zoomManager.screenOffsetX + Gdx.graphics.width / zoom
+        val cameraEndY = simulationSystem.zoomManager.screenOffsetY + Gdx.graphics.height / zoom
 
 
         renderer.begin(ShapeRenderer.ShapeType.Filled)
         renderer.color = Color(1.0f, 1f, 1f, 1f)
 
-        for (i in 0..<cellManager.subManager.cellLastId + 1) {
-            if (xOffset > cellManager.subManager.x[i]) continue
-            if (yOffset > cellManager.subManager.y[i]) continue
-            if (cameraEndX < cellManager.subManager.x[i]) continue
-            if (cameraEndY < cellManager.subManager.y[i]) continue
-            if (cellManager.subManager.x[i] > 0 && cellManager.subManager.y[i] > 0) {
+        for (i in 0..<simulationSystem.subManager.cellLastId + 1) {
+            if (xOffset > simulationSystem.subManager.x[i]) continue
+            if (yOffset > simulationSystem.subManager.y[i]) continue
+            if (cameraEndX < simulationSystem.subManager.x[i]) continue
+            if (cameraEndY < simulationSystem.subManager.y[i]) continue
+            if (simulationSystem.subManager.x[i] > 0 && simulationSystem.subManager.y[i] > 0) {
                 renderer.circle(
-                    (cellManager.subManager.x[i] - xOffset) * zoom,
-                    (cellManager.subManager.y[i] - yOffset) * zoom,
-                    cellManager.subManager.radius[i] * zoom
+                    (simulationSystem.subManager.x[i] - xOffset) * zoom,
+                    (simulationSystem.subManager.y[i] - yOffset) * zoom,
+                    simulationSystem.subManager.radius[i] * zoom
                 )
             }
         }
@@ -169,25 +171,25 @@ class PlayGround(
 
 
         if (drawRays) {
-            for (i in 0..<cellManager.specialCellsId) {
-                val cellId = cellManager.drawSpecialCells[i]
-                when (cellManager.cellType[cellId]) {
+            for (i in 0..<simulationSystem.specialCellsId) {
+                val cellId = simulationSystem.drawSpecialCells[i]
+                when (simulationSystem.cellType[cellId]) {
                     6 -> {
                         renderer.color = Color.CYAN
                         renderer.circle(
-                            (cellManager.x[cellId] - xOffset) * zoom,
-                            (cellManager.y[cellId] - yOffset) * zoom,
+                            (simulationSystem.x[cellId] - xOffset) * zoom,
+                            (simulationSystem.y[cellId] - yOffset) * zoom,
                             150f * zoom
                         )
                     }
 
                     14 -> {
-                        renderer.color = getColorFromBits(cellManager.colorDifferentiation[cellId])
+                        renderer.color = getColorFromBits(simulationSystem.colorDifferentiation[cellId])
                         renderer.drawArrowWithRotationAngle(
-                            startX = (cellManager.x[cellId] - xOffset) * zoom,
-                            startY = (cellManager.y[cellId] - yOffset) * zoom,
-                            baseAngle = cellManager.angle[cellId],
-                            length = cellManager.visibilityRange[cellId] * zoom,
+                            startX = (simulationSystem.x[cellId] - xOffset) * zoom,
+                            startY = (simulationSystem.y[cellId] - yOffset) * zoom,
+                            baseAngle = simulationSystem.angle[cellId],
+                            length = simulationSystem.visibilityRange[cellId] * zoom,
                             isDrawWithoutTriangle = true,
                         )
                     }
@@ -195,9 +197,9 @@ class PlayGround(
                     3, 9, 15, 21, 0 -> {
                         renderer.color = Color.CYAN
                         renderer.drawArrowWithRotationAngle(
-                            startX = (cellManager.x[cellId] - xOffset) * zoom,
-                            startY = (cellManager.y[cellId] - yOffset) * zoom,
-                            baseAngle = cellManager.angle[cellId],// + cellManager.angleDiff[cellId],
+                            startX = (simulationSystem.x[cellId] - xOffset) * zoom,
+                            startY = (simulationSystem.y[cellId] - yOffset) * zoom,
+                            baseAngle = simulationSystem.angle[cellId],// + cellManager.angleDiff[cellId],
                             length = 30f * zoom
                         )
                     }
@@ -209,6 +211,7 @@ class PlayGround(
     }
 
 }
+*/
 
 fun getColorFromBits(bits: Int): Color {
     if (bits == 0) return Color.BLACK.cpy()

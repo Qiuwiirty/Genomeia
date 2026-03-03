@@ -25,11 +25,11 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisSlider
 import com.kotcrab.vis.ui.widget.VisTextButton
-import io.github.some_example_name.old.genome.Action
-import io.github.some_example_name.old.genome.json.GenomeJsonReader
-import io.github.some_example_name.old.genome.json.write.domainToJson
-import io.github.some_example_name.old.genome_editor.GenomeEditorGrowthProcessor.Companion.START_EDITOR_CELL_X
-import io.github.some_example_name.old.genome_editor.GenomeEditorGrowthProcessor.Companion.START_EDITOR_CELL_Y
+import io.github.some_example_name.old.systems.genomics.genome.Action
+import io.github.some_example_name.old.systems.genomics.genome.json.GenomeJsonReader
+import io.github.some_example_name.old.systems.genomics.genome.json.write.domainToJson
+//import io.github.some_example_name.old.genome_editor.GenomeEditorGrowthProcessor.Companion.START_EDITOR_CELL_X
+//import io.github.some_example_name.old.genome_editor.GenomeEditorGrowthProcessor.Companion.START_EDITOR_CELL_Y
 import io.github.some_example_name.old.genome_editor.commands.AddNeuralLinkCommand
 import io.github.some_example_name.old.genome_editor.commands.ChangeDivideCommand
 import io.github.some_example_name.old.genome_editor.commands.DivideCellCommand
@@ -42,18 +42,16 @@ import io.github.some_example_name.old.genome_editor.dialog.ChangeRemoveActionDi
 import io.github.some_example_name.old.genome_editor.dialog.DivideActionDialog
 import io.github.some_example_name.old.genome_editor.dialog.MutateActionDialog
 import io.github.some_example_name.old.genome_editor.dialog.MutateOrDivideDialog
-import io.github.some_example_name.old.good_one.CellSimulation
-import io.github.some_example_name.old.good_one.pikSounds
-import io.github.some_example_name.old.good_one.utils.drawArrowWithRotationAngle
-import io.github.some_example_name.old.good_one.utils.drawTriangleMiddle
-import io.github.some_example_name.old.platform_flag.FileProvider
-import io.github.some_example_name.old.screens.GlobalSettings
-import io.github.some_example_name.old.screens.MenuScreen
-import io.github.some_example_name.old.screens.MyGame
-import io.github.some_example_name.old.screens.applyCustomFont
-import io.github.some_example_name.old.screens.applyCustomFontMedium
-import io.github.some_example_name.old.shader_instancing.InstancingTextureShaderManager
-import io.github.some_example_name.old.world_logic.GridManager.Companion.CELL_SIZE
+import io.github.some_example_name.old.ui.screens.SimulationScreen
+import io.github.some_example_name.old.core.utils.drawArrowWithRotationAngle
+import io.github.some_example_name.old.core.utils.drawTriangleMiddle
+import io.github.some_example_name.old.core.FileProvider
+import io.github.some_example_name.old.ui.screens.MenuScreen
+import io.github.some_example_name.old.ui.screens.MyGame
+import io.github.some_example_name.old.ui.screens.applyCustomFont
+import io.github.some_example_name.old.ui.screens.applyCustomFontMedium
+import io.github.some_example_name.old.systems.render.InstancingTextureShaderManager
+import io.github.some_example_name.old.systems.physics.GridManager.Companion.CELL_SIZE
 import kotlin.Float
 
 data class GenomeEditorData(
@@ -71,7 +69,7 @@ enum class LastActionType {
 
 var timeForProcessingActionStart = System.nanoTime()
 var timeForProcessingActionResult = 0f
-
+/*
 class GenomeEditorScreen(
     val multiPlatformFileProvider: FileProvider,
     val game: MyGame,
@@ -167,7 +165,7 @@ class GenomeEditorScreen(
             genome = genome,
             onSaveAndTest = { genomeNameForTest ->
                 game.screen.dispose()
-                game.screen = CellSimulation(
+                game.screen = SimulationScreen(
                     multiPlatformFileProvider = multiPlatformFileProvider,
                     game = game,
                     bundle = bundle,
@@ -909,7 +907,6 @@ class GenomeEditorScreen(
     ) {
         timeForProcessingActionStart = System.nanoTime()
         if (newDividedCellPosition == null) return
-        pikSounds.random().play(GlobalSettings.SOUND_VOLUME / 100f)
         val isLastTick = editor.state.currentTick == editor.replay.size - 1
 
         val genomeStageInstruction = editor.growthProcessor.currentGenome.genomeStageInstruction
@@ -1068,3 +1065,4 @@ class GenomeEditorScreen(
         initialZoom = 0f
     }
 }
+*/

@@ -1,7 +1,7 @@
 package io.github.some_example_name.old.genome_editor
 
-import io.github.some_example_name.old.world_logic.CellManager
-import io.github.some_example_name.old.world_logic.CellManager.Companion.MAX_LINK_AMOUNT
+import io.github.some_example_name.old.systems.genomics.CellManager.Companion.MAX_LINK_AMOUNT
+import io.github.some_example_name.old.systems.simulation.SimulationSystem
 import java.util.BitSet
 
 class FullReplayStructure(
@@ -81,8 +81,9 @@ class FullReplayStructure(
     var justChangedStage: Boolean = false,
 //    var timerToGrowAfterStage: Int = 0
 )
+/*
 
-fun CellManager.restoreFromFullReplayStructure(struct: FullReplayStructure) {
+fun SimulationSystem.restoreFromFullReplayStructure(struct: FullReplayStructure) {
     cellLastId = struct.id.size - 1
     linksLastId = struct.links1.size - 1
 
@@ -157,8 +158,10 @@ fun CellManager.restoreFromFullReplayStructure(struct: FullReplayStructure) {
 //    System.arraycopy(struct.degreeOfShortening, 0, degreeOfShortening, 0, linkSize)
 //    System.arraycopy(struct.isStickyLink, 0, isStickyLink, 0, linkSize)
 }
+*/
+/*
 
-fun CellManager.createFullReplayStructure(): FullReplayStructure {
+fun SimulationSystem.createFullReplayStructure(): FullReplayStructure {
     val cellSize = cellLastId + 1
     val linkSize = linksLastId + 1
     val cellLinksSize = cellSize * MAX_LINK_AMOUNT
@@ -231,7 +234,9 @@ fun CellManager.createFullReplayStructure(): FullReplayStructure {
         links1 = links1.copyOfRange(0, linkSize),
         links2 = links2.copyOfRange(0, linkSize),
         linksLength = linksNaturalLength.copyOfRange(0, linkSize),
-        isNeuronLink = isNeuronLink/*.copyOfRange(0, linkSize)*/,
+        isNeuronLink = isNeuronLink*/
+/*.copyOfRange(0, linkSize)*//*
+,
 //        directedNeuronLink = directedNeuronLink.copyOfRange(0, linkSize),
 //        degreeOfShortening = degreeOfShortening.copyOfRange(0, linkSize),
 //        isStickyLink = isStickyLink.copyOfRange(0, linkSize),
@@ -245,3 +250,4 @@ fun CellManager.createFullReplayStructure(): FullReplayStructure {
 //        timerToGrowAfterStage = organism.timerToGrowAfterStage,
     )
 }
+*/

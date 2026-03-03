@@ -1,7 +1,6 @@
 package io.github.some_example_name.old.genome_editor.dialog
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane
 import com.badlogic.gdx.scenes.scene2d.ui.Table
@@ -12,20 +11,15 @@ import com.kotcrab.vis.ui.widget.VisDialog
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter
-import io.github.some_example_name.old.genome.Action
+import io.github.some_example_name.old.cells.base.formulaType
+import io.github.some_example_name.old.systems.genomics.genome.Action
 import io.github.some_example_name.old.genome_editor.EditorCell
 import io.github.some_example_name.old.genome_editor.FullReplayStructure
 import io.github.some_example_name.old.genome_editor.dialog.color.ColorPicker
 import io.github.some_example_name.old.good_one.getColorFromBits
-import io.github.some_example_name.old.screens.MyGame
-import io.github.some_example_name.old.screens.applyCustomFontMedium
-import io.github.some_example_name.old.screens.setupTitleSize
-import io.github.some_example_name.old.world_logic.cells.base.cellsType
-import io.github.some_example_name.old.world_logic.cells.base.formulaType
-import io.github.some_example_name.old.world_logic.cells.base.getCellColor
-import io.github.some_example_name.old.world_logic.cells.base.isDirected
-import io.github.some_example_name.old.world_logic.cells.base.isEye
-import io.github.some_example_name.old.world_logic.cells.base.isNeural
+import io.github.some_example_name.old.ui.screens.MyGame
+import io.github.some_example_name.old.ui.screens.applyCustomFontMedium
+import io.github.some_example_name.old.ui.screens.setupTitleSize
 
 
 class MutateActionDialog(

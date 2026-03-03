@@ -1,14 +1,14 @@
 package io.github.some_example_name.old.genome_editor.commands
 
-import io.github.some_example_name.old.genome.Action
-import io.github.some_example_name.old.genome.CellAction
-import io.github.some_example_name.old.genome.GenomeStage
-import io.github.some_example_name.old.genome.LinkData
+import io.github.some_example_name.old.systems.genomics.genome.Action
+import io.github.some_example_name.old.systems.genomics.genome.CellAction
+import io.github.some_example_name.old.systems.genomics.genome.GenomeStage
+import io.github.some_example_name.old.systems.genomics.genome.LinkData
 import io.github.some_example_name.old.genome_editor.Command
 import io.github.some_example_name.old.genome_editor.EditorCell
 import io.github.some_example_name.old.genome_editor.findNewOptimalCellPosition
-import io.github.some_example_name.old.world_logic.GridManager
-import io.github.some_example_name.old.world_logic.GridManager.Companion.CELL_SIZE
+import io.github.some_example_name.old.systems.physics.GridManager
+import io.github.some_example_name.old.systems.physics.GridManager.Companion.CELL_SIZE
 import kotlin.math.atan2
 import kotlin.math.sqrt
 
