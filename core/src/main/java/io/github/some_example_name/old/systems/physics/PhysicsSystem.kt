@@ -4,6 +4,8 @@ import io.github.some_example_name.old.commands.CommandsManager
 import io.github.some_example_name.old.core.SubstrateSettings
 import io.github.some_example_name.old.entities.ParticleEntity
 import io.github.some_example_name.old.core.utils.invSqrt
+import io.github.some_example_name.old.systems.simulation.ThreadManager.Companion.HALF_CHUNK_HEIGHT
+import kotlin.math.abs
 
 class PhysicsSystem(
     val entity: ParticleEntity,
@@ -29,7 +31,6 @@ class PhysicsSystem(
             }
         }
     }
-
 
     private fun distributeParticleIndicesAcrossChunks(
         cellIndex: Int,
@@ -93,6 +94,7 @@ class PhysicsSystem(
         if (distanceSquared < radiusSquared) {
             val distance = 1.0f / invSqrt(distanceSquared)
             if (distance.isNaN()) throw Exception("TODO потом убрать")
+/*
 
             if (effectOnContact[cellAId] || effectOnContact[cellBId]) {
                 //TODO сделать буфер
@@ -116,6 +118,10 @@ class PhysicsSystem(
 //                    Punisher.specificToThisType(this, cellAId, cellBId, threadId)
 //                }
             }
+*/
+
+//            val massA = mass[cellAId]
+//            val massB = mass[cellBId]
 
             // Квадратичная зависимость силы
             val cellStrengthAverage = (cellStiffness[cellAId] + cellStiffness[cellBId]) / 2f
@@ -125,10 +131,11 @@ class PhysicsSystem(
             val normY = dy / distance
             val vectorX = normX * force
             val vectorY = normY * force
-            vx[cellAId] += vectorX
-            vy[cellAId] += vectorY
-            vx[cellBId] -= vectorX
-            vy[cellBId] -= vectorY
+
+            vx[cellAId] += vectorX /// massA
+            vy[cellAId] += vectorY /// massA
+            vx[cellBId] -= vectorX /// massB
+            vy[cellBId] -= vectorY /// massB
         }
     }
 
@@ -236,17 +243,19 @@ class PhysicsSystem(
 */
 
     private fun processWorldBorders(cellId: Int) = with(entity) {
-        if (x[cellId] < PARTICLE_MAX_RADIUS) {
-            x[cellId] = PARTICLE_MAX_RADIUS
+        if (x[cellId] < radius[cellId]) {
+            x[cellId] = radius[cellId]
             vx[cellId] *= -0.8f
-        } else if (x[cellId] > gridManager.WORLD_WIDTH_MINUS_CELL_RADIUS) {
-            x[cellId] = gridManager.WORLD_WIDTH_MINUS_CELL_RADIUS
+        } else if (x[cellId] > gridManager.WORLD_WIDTH - radius[cellId]) {
+            x[cellId] = gridManager.WORLD_WIDTH - radius[cellId]
             vx[cellId] *= -0.8f
-        } else if (y[cellId] < PARTICLE_MAX_RADIUS) {
-            y[cellId] = PARTICLE_MAX_RADIUS
+        }
+
+        if (y[cellId] < radius[cellId]) {
+            y[cellId] = radius[cellId]
             vy[cellId] *= -0.8f
-        } else if (y[cellId] > gridManager.WORLD_HEIGHT_MINUS_CELL_RADIUS) {
-            y[cellId] = gridManager.WORLD_HEIGHT_MINUS_CELL_RADIUS
+        } else if (y[cellId] > gridManager.WORLD_WIDTH - radius[cellId]) {
+            y[cellId] = gridManager.WORLD_WIDTH - radius[cellId]
             vy[cellId] *= -0.8f
         }
     }
@@ -254,9 +263,13 @@ class PhysicsSystem(
     fun moveParticle(i: Int) = with(entity) {
         val oldX = (x[i] / GridManager.Companion.CELL_SIZE).toInt()
         val oldY = (y[i] / GridManager.Companion.CELL_SIZE).toInt()
-        vy[i] -= 0.005f
+        vx[i] += 0.05f
+//        vy[i] -= 0.05f
+        processCellFrictionOld(i)
         x[i] += vx[i]
-        y[i] += vy[i]
+        y[i] += if (abs(vy[i]) > HALF_CHUNK_HEIGHT) {
+            if (vy[i] < 0) -HALF_CHUNK_HEIGHT else HALF_CHUNK_HEIGHT
+        } else vy[i]
         processWorldBorders(i)
         val newX = (x[i] / GridManager.Companion.CELL_SIZE).toInt()
         val newY = (y[i] / GridManager.Companion.CELL_SIZE).toInt()

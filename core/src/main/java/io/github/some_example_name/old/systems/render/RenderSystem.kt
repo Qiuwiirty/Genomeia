@@ -1,0 +1,59 @@
+package io.github.some_example_name.old.systems.render
+
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.Camera
+import com.badlogic.gdx.graphics.g2d.BitmapFont
+import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import io.github.some_example_name.old.entities.CellEntity
+import io.github.some_example_name.old.entities.LinkEntity
+import io.github.some_example_name.old.entities.ParticleEntity
+import io.github.some_example_name.old.entities.SimEntity
+import kotlin.math.round
+
+class RenderSystem(
+    val tripleBufferManager: TripleBufferManager,
+    val simEntity: SimEntity,
+    val cellEntity: CellEntity,
+    val linkEntity: LinkEntity,
+    val particleEntity: ParticleEntity,
+    val shaderManager: ShaderManager
+) {
+
+    fun create() {
+        shaderManager.create()
+    }
+
+    fun drawShader(camera: Camera) {
+        val currentRead = tripleBufferManager.getAndSwapConsumer()
+        shaderManager.render(
+            currentRead = currentRead,
+            cameraProjection = camera.combined
+        )
+    }
+
+    fun drawTextSimInfo(spriteBatch: SpriteBatch, font: BitmapFont) {
+        //TODO тут кстати тоже нужна синхронизация, хоть и не так критично
+        spriteBatch.begin()
+        font.draw(
+            spriteBatch,
+            """
+                    FPS: ${Gdx.graphics.framesPerSecond}
+                    UPS: ${simEntity.ups}
+                    Update Time: ${round(1e5f / simEntity.ups) / 100f} ms
+                    Cells: ${cellEntity.cellLastId - cellEntity.deadCellsStackAmount}
+                    Particles: ${particleEntity.particleLastId - particleEntity.deadParticlesStackAmount}
+                    Links ${linkEntity.linksLastId - linkEntity.deadLinksStackAmount}
+                    NeuronImpulseInput ${if (simEntity.grabbedCell != -1) cellEntity.neuronImpulseInput[simEntity.grabbedCell] else "0.0"}
+                    NeuronImpulseOutput ${if (simEntity.grabbedCell != -1) cellEntity.neuronImpulseOutput[simEntity.grabbedCell] else "0.0"}
+                """.trimIndent(),
+            30f,
+            120f
+        )
+        font.data.setScale(1f)
+        spriteBatch.end()
+    }
+
+    fun dispose() {
+
+    }
+}

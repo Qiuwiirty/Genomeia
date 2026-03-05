@@ -3,8 +3,10 @@ package io.github.some_example_name.old.entities
 import io.github.some_example_name.old.systems.physics.GridManager
 import io.github.some_example_name.old.systems.physics.GridManager.Companion.CELL_SIZE
 import io.github.some_example_name.old.systems.physics.PhysicsSystem.Companion.PARTICLE_MAX_RADIUS
+import it.unimi.dsi.fastutil.ints.IntArrayList
 import java.util.BitSet
 import kotlin.collections.fill
+import kotlin.math.PI
 
 class ParticleEntity(
     particlesStartMaxAmount: Int,
@@ -15,6 +17,7 @@ class ParticleEntity(
 
     var deadParticlesStackAmount = -1
     var deadParticlesStack = IntArray(250_000) { -1 }
+    val list = IntArrayList()
 
     var isAliveParticle = BitSet(particleMaxAmount)
 
@@ -24,17 +27,20 @@ class ParticleEntity(
     var vx = FloatArray(particleMaxAmount)
     var vy = FloatArray(particleMaxAmount)
     var radius = FloatArray(particleMaxAmount) { PARTICLE_MAX_RADIUS }
-    var dragCoefficient = ByteArray(particleMaxAmount) { 93 }
+    var mass = FloatArray(particleMaxAmount)
+    var color = IntArray(particleMaxAmount)
+    var dragCoefficient = FloatArray(particleMaxAmount) { 0.003f }
     var effectOnContact = BitSet(particleMaxAmount)
-    var cellStiffness = FloatArray(particleMaxAmount)
+    var cellStiffness = FloatArray(particleMaxAmount) { 0.5f }
 
     fun addParticle(
         x: Float,
         y: Float,
         radius: Float,
+        color: Int,
         vx: Float = 0f,
         vy: Float = 0f,
-        dragCoefficient: Byte = 93,
+        dragCoefficient: Float = 0.03f,
         effectOnContact: Boolean = false,
         cellStiffness: Float = 2.0f
     ) {
@@ -52,6 +58,10 @@ class ParticleEntity(
         this.x[index] = x
         this.y[index] = y
         this.radius[index] = radius
+        this.color[index] = color
+        this.cellStiffness[index] = cellStiffness
+        this.dragCoefficient[index] = dragCoefficient
+        this.mass[index] = radius * radius * PI.toFloat()
     }
 
     override fun copy() {
@@ -77,7 +87,9 @@ class ParticleEntity(
         vx.fill(0f, 0, particleBound)
         vy.fill(0f, 0, particleBound)
         radius.fill(PARTICLE_MAX_RADIUS, 0, particleBound)
-        dragCoefficient.fill(93, 0, particleBound)
+        color.fill(0, 0, particleBound)
+        mass.fill(0f, 0, particleBound)
+        dragCoefficient.fill(0.03f, 0, particleBound)
         effectOnContact.clear()
         cellStiffness.fill(0f, 0, particleBound)
     }
@@ -123,13 +135,28 @@ class ParticleEntity(
         }
         run {
             val old = dragCoefficient
-            dragCoefficient = ByteArray(particleMaxAmount) { 93 }
+            dragCoefficient = FloatArray(particleMaxAmount) { 0.03f }
             System.arraycopy(old, 0, dragCoefficient, 0, oldMax)
         }
         run {
             val old = cellStiffness
             cellStiffness = FloatArray(particleMaxAmount)
             System.arraycopy(old, 0, cellStiffness, 0, oldMax)
+        }
+        run {
+            val old = color
+            color = IntArray(particleMaxAmount)
+            System.arraycopy(old, 0, color, 0, oldMax)
+        }
+        run {
+            val old = mass
+            mass = FloatArray(particleMaxAmount)
+            System.arraycopy(old, 0, mass, 0, oldMax)
+        }
+        run {
+            val old = radius
+            radius = FloatArray(particleMaxAmount)
+            System.arraycopy(old, 0, radius, 0, oldMax)
         }
     }
 }

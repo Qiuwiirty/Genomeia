@@ -16,7 +16,7 @@ import com.kotcrab.vis.ui.widget.color.ColorPickerListener
 import com.kotcrab.vis.ui.widget.color.ColorPickerStyle
 import io.github.some_example_name.old.ui.screens.MyGame
 import io.github.some_example_name.old.ui.screens.applyCustomFont
-import io.github.some_example_name.old.ui.screens.setupTitleSize
+import io.github.some_example_name.old.ui.dialogs.setupTitleSize
 
 
 //TODO сделать dispose всех ColorPicker

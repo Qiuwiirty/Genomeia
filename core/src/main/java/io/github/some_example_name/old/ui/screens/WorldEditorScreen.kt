@@ -30,6 +30,7 @@ import io.github.some_example_name.old.core.WorldGenerator.Companion.GENERATOR_I
 import io.github.some_example_name.old.core.FileProvider
 import io.github.some_example_name.old.core.utils.brownColors
 import io.github.some_example_name.old.systems.physics.GridManager.Companion.WORLD_SIZE_TYPE
+import io.github.some_example_name.old.ui.dialogs.setupTitleSize
 
 class WorldEditorScreen(
     private val game: MyGame,

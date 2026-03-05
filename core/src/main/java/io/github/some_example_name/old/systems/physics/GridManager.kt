@@ -129,5 +129,5 @@ enum class WorldSize(val size: Int, val threadCount: Int, val generateWorldSize:
 
     L(96, 6, 153, 0.25f), //Large (большой)
 
-    XL(192, 6, 305, 0.125f), //Extra Large (очень большой)
+    XL(192*2, 6, 305, 0.125f), //Extra Large (очень большой)
 }

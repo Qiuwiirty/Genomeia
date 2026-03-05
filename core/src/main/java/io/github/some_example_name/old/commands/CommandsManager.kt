@@ -16,6 +16,7 @@ class CommandsManager(
     val worldCommandBuffer = Array(THREAD_COUNT) { WorldCommandBuffer() }
 
     //A buffer for updating cell positions — maybe I’ll be able to come up with something better
+    //TODO resize
     val evenChunkPositionStack = Array(THREAD_COUNT) { IntArray(30_000) }
     val oddChunkPositionStack = Array(THREAD_COUNT) { IntArray(30_000) }
 

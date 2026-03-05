@@ -15,7 +15,7 @@ class PheromoneEmitter : Cell(
 //        if (gridId < 0 || gridId >= cm.gridManager.GRID_SIZE) return
         //TODO PheromoneManager
         //TODO map color
-        val intColor = color[index]
+        val intColor = getColor(index)
         val r = 0
         val g = 0
         val b = 0

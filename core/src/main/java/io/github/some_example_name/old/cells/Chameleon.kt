@@ -44,7 +44,7 @@ class Chameleon : Cell(
                     }
                 }
             }
-            color[index] = Color.rgba8888(Color(r, g, b, 1f))
+            setColor(index, Color.rgba8888(Color(r, g, b, 1f)))
 
             energy[index] -= substrateSettings.cellsSettings[cellType[index] + 1].energyActionCost
         }

@@ -14,8 +14,8 @@ class SimEntity: Entity {
 
     var isPlay = true
     var maxSpeed = false
-    // Флаг для контроля работы потока // Flag for controlling the flow operation
     var ups = 60
+    var grabbedCell = -1
 
     //TODO подумать как сделать лучше
     val controllerIndexesLol = TreeMap<Int, Boolean>()

@@ -23,8 +23,6 @@ import com.kotcrab.vis.ui.widget.VisSlider
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextField
 import io.github.some_example_name.old.systems.genomics.genome.Action
-import io.github.some_example_name.old.good_one.encodeColorToBits
-import io.github.some_example_name.old.good_one.getColorFromBits
 import kotlin.math.PI
 import kotlin.math.roundToInt
 import com.kotcrab.vis.ui.widget.VisTextButton

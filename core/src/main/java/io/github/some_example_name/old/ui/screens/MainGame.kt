@@ -36,6 +36,7 @@ var openKeyBoardListenerGlobal: KeyBoardListener? = null
 //Entry point
 class MyGame(val multiPlatformFileProvider: FileProvider, val openKeyBoardListener: KeyBoardListener? = null) : Game() {
 
+    lateinit var pikSounds: List<Sound>
     private val trackFiles = listOf(
         "track1.ogg",
         "track2.ogg",

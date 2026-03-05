@@ -16,10 +16,43 @@ import io.github.some_example_name.old.systems.genomics.genome.Action
 import io.github.some_example_name.old.genome_editor.EditorCell
 import io.github.some_example_name.old.genome_editor.FullReplayStructure
 import io.github.some_example_name.old.genome_editor.dialog.color.ColorPicker
-import io.github.some_example_name.old.good_one.getColorFromBits
 import io.github.some_example_name.old.ui.screens.MyGame
 import io.github.some_example_name.old.ui.screens.applyCustomFontMedium
-import io.github.some_example_name.old.ui.screens.setupTitleSize
+import io.github.some_example_name.old.ui.dialogs.setupTitleSize
+
+
+fun getColorFromBits(bits: Int): Color {
+    if (bits == 0) return Color.BLACK.cpy()
+
+    var r = 0f
+    var g = 0f
+    var b = 0f
+    var count = 0
+
+    if (bits and 1 != 0) {
+        r += 1f
+        count++
+    }
+    if (bits and 2 != 0) {
+        g += 1f
+        count++
+    }
+    if (bits and 4 != 0) {
+        b += 1f
+        count++
+    }
+
+    return Color(r / count, g / count, b / count, 1f)
+}
+
+fun encodeColorToBits(r: Float, g: Float, b: Float): Int {
+    var bits = 0
+    if (r == 1f) bits = bits or 1
+    if (g == 1f) bits = bits or 2
+    if (b == 1f) bits = bits or 4
+    return bits
+}
+
 
 
 class MutateActionDialog(

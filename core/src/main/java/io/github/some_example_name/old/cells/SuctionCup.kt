@@ -11,7 +11,7 @@ class SuctionCup: Cell(
         val impulse = neuronImpulseOutput[index]
         val friction = if (impulse > 1) 1f else if (impulse < 0) 0f else impulse
 
-        setDragCoefficient(index, ((friction * 0.93f) * 100).toInt().toByte())//TODO прочекать Byte
+        setDragCoefficient(index, friction/*((friction * 0.93f) * 100).toInt().toByte()*/)//TODO прочекать Byte
         energy[index] -= substrateSettings.cellsSettings[cellType[index] + 1].energyActionCost
     }
 }

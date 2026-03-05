@@ -19,6 +19,7 @@ class CellEntity(
     //Cell - genomic
     var isAliveCell = BitSet(cellMaxAmount)
     var cellGeneration = IntArray(cellMaxAmount)
+    //TODO массив индексов живых клеток, для удобного итерирования
 
     private var particleIndex = IntArray(cellMaxAmount) { -1 }
 
@@ -32,7 +33,7 @@ class CellEntity(
     fun setVx(index: Int, value: Float) { particleEntity.vx[particleIndex[index]] = value }
     fun setVy(index: Int, value: Float) { particleEntity.vy[particleIndex[index]] = value }
     fun getDragCoefficient(index: Int) = particleEntity.dragCoefficient[particleIndex[index]]
-    fun setDragCoefficient(index: Int, value: Byte) {
+    fun setDragCoefficient(index: Int, value: Float) {
         particleEntity.dragCoefficient[particleIndex[index]] = value
     }
     fun getRadius(index: Int) = particleEntity.radius[particleIndex[index]]
@@ -42,6 +43,8 @@ class CellEntity(
 
     fun getTime(index: Int) = simEntity.timeSimulation
 
+    fun getColor(index: Int) = particleEntity.color
+    fun setColor(index: Int, value: Int) { particleEntity.color[particleIndex[index]] = value }
 
     var cellGenomeId = IntArray(cellMaxAmount) { -1 }
     var cellActions: Array<CellAction?> = arrayOfNulls(cellMaxAmount)
@@ -54,7 +57,6 @@ class CellEntity(
     var isDividedInThisStage = BitSet(cellMaxAmount)
     var isMutateInThisStage = BitSet(cellMaxAmount)
 
-    var color = IntArray(cellMaxAmount)
     var cellType = IntArray(cellMaxAmount) //TODO перевести в ByteArray возможно будет более оптимизированная проверка
     var energy = FloatArray(cellMaxAmount) //Рисовать
 
@@ -141,7 +143,6 @@ class CellEntity(
 
         angle.fill(0f, 0, cellBound)
 
-        color.fill(0, 0, cellBound)
 
         energyNecessaryToDivide.fill(2f, 0, cellBound)
         energyNecessaryToMutate.fill(1f, 0, cellBound)
@@ -216,11 +217,6 @@ class CellEntity(
             val old = angle
             angle = FloatArray(cellMaxAmount)
             System.arraycopy(old, 0, angle, 0, oldMax)
-        }
-        run {
-            val old = color
-            color = IntArray(cellMaxAmount)
-            System.arraycopy(old, 0, color, 0, oldMax)
         }
         run {
             val old = energyNecessaryToDivide

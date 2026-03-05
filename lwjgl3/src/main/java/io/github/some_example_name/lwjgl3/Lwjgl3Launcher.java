@@ -28,7 +28,7 @@ public class Lwjgl3Launcher {
     }
 
     private static Lwjgl3Application createApplication() {
-        return new Lwjgl3Application(new TripleBufferExample(/*new DesktopFileProvider(), null*/), getDefaultConfiguration());
+        return new Lwjgl3Application(new MyGame(new DesktopFileProvider(), null), getDefaultConfiguration());
     }
 
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {

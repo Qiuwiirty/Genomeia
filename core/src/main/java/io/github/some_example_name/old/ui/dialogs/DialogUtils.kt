@@ -1,10 +1,12 @@
-package io.github.some_example_name.old.ui.screens
+package io.github.some_example_name.old.ui.dialogs
 
 import com.badlogic.gdx.Application
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.Scaling
 import com.kotcrab.vis.ui.widget.VisImageButton
 import com.kotcrab.vis.ui.widget.VisWindow
+import io.github.some_example_name.old.ui.screens.MyGame
+import io.github.some_example_name.old.ui.screens.applyCustomFontMedium
 
 fun VisWindow.setupTitleSize(game: MyGame) {
     if (Gdx.app.type != Application.ApplicationType.Android) {

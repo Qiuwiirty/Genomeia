@@ -13,7 +13,7 @@ import io.github.some_example_name.old.systems.genomics.genome.Action
 import io.github.some_example_name.old.genome_editor.EditorCell
 import io.github.some_example_name.old.genome_editor.dialog.color.ColorPicker
 import io.github.some_example_name.old.ui.screens.MyGame
-import io.github.some_example_name.old.ui.screens.setupTitleSize
+import io.github.some_example_name.old.ui.dialogs.setupTitleSize
 
 class ChangeRemoveActionDialog(
     val clickedCell: EditorCell,

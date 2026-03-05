@@ -15,7 +15,7 @@ import io.github.some_example_name.old.genome_editor.dialog.actionButton
 import io.github.some_example_name.old.ui.screens.MyGame
 import io.github.some_example_name.old.ui.screens.applyCustomFont
 import io.github.some_example_name.old.ui.screens.applyCustomFontMedium
-import io.github.some_example_name.old.ui.screens.setupTitleSize
+import io.github.some_example_name.old.ui.dialogs.setupTitleSize
 
 class SaveGenomeDialog(
     val genomeJsonReader: GenomeJsonReader,

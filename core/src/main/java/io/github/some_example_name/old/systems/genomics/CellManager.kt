@@ -52,14 +52,9 @@ class CellManager(
         }
     }
 
-    fun resetNeuralImpulseInput(cellId: Int) {
-        cellEntity.neuronImpulseInput[cellId] = if (cellEntity.isSum[cellId]) 0f else 1f
-    }
-
     fun processCell(
         cellIndex: Int,
-        threadId: Int,
-        isOdd: Boolean
+        threadId: Int
     ) {
         if (!cellEntity.isAliveCell[cellIndex]) return
         if (cellEntity.energy[cellIndex] <= 0f) killCell(cellIndex, threadId)
@@ -74,14 +69,6 @@ class CellManager(
 
         genomicTransformations(cellIndex, threadId)
         processCellAngle(cellIndex)
-
-        if (isOdd) {
-            commandsManager.oddChunkPositionStack[threadId][commandsManager.oddCounter[threadId]] = cellIndex
-            commandsManager.oddCounter[threadId]++
-        } else {
-            commandsManager.evenChunkPositionStack[threadId][commandsManager.evenCounter[threadId]] = cellIndex
-            commandsManager.evenCounter[threadId]++
-        }
     }
 
     fun genomicTransformations(cellIndex: Int, threadId: Int) {

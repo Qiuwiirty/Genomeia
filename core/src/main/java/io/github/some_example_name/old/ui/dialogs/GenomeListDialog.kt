@@ -14,7 +14,6 @@ import com.kotcrab.vis.ui.widget.VisTable
 import io.github.some_example_name.old.genome_editor.dialog.actionButton
 import io.github.some_example_name.old.ui.screens.MyGame
 import io.github.some_example_name.old.ui.screens.applyCustomFont
-import io.github.some_example_name.old.ui.screens.setupTitleSize
 
 class GenomeListDialog(
     val genomesList: List<String>,

@@ -1,5 +1,7 @@
 package io.github.some_example_name.old.systems.simulation
 
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.math.MathUtils
 import io.github.some_example_name.old.commands.CommandsManager
 import io.github.some_example_name.old.commands.PlayerCommand
 import io.github.some_example_name.old.commands.WorldCommandType
@@ -14,7 +16,9 @@ import io.github.some_example_name.old.entities.SubstancesEntity
 import io.github.some_example_name.old.systems.genomics.genome.GenomeManager
 import io.github.some_example_name.old.systems.genomics.OrganManager
 import io.github.some_example_name.old.systems.physics.GridManager
+import io.github.some_example_name.old.systems.physics.GridManager.Companion.WORLD_SIZE_TYPE
 import io.github.some_example_name.old.systems.physics.PhysicsSystem
+import io.github.some_example_name.old.systems.render.TripleBufferManager
 import kotlin.inc
 
 class SimulationSystem(
@@ -31,7 +35,8 @@ class SimulationSystem(
     val threadManager: ThreadManager,
     val genomeManager: GenomeManager,
     val physicsSystem: PhysicsSystem,
-    val simEntity: SimEntity
+    val simEntity: SimEntity,
+    val tripleBufferManager: TripleBufferManager
 ) {
 
     val simulationThread = Thread { threadManager.runUpdateLoop { updateTick() } }
@@ -41,6 +46,30 @@ class SimulationSystem(
             threadManager.isRunning = true
             simulationThread.start()
         }
+    }
+
+    fun updateTick() {
+        if (simEntity.isFinish) {
+            dispose()
+        }
+        if (simEntity.isRestart) {
+            restartSim()
+        }
+
+        simEntity.tickCounter++
+        simEntity.timeSimulation += DELTA_SIM_TICK_TIME
+
+        processParticleCollision()
+        //TODO Process link physics
+        //TODO Process cell
+        //TODO Process substance
+        arrangementOfPositionsInTheGrid()
+
+        tripleBufferManager.updateAndCommitProducer()
+
+        organManager.performOrgansNextStage()
+        executingCommandsFromTheWorld()
+        processingCommandsFromUser()
     }
 
     fun processParticleCollision() {
@@ -92,16 +121,20 @@ class SimulationSystem(
                     WorldCommandType.ADD_PARTICLE -> {
                         val x = floats[0]
                         val y = floats[1]
-                        val radius = floats[2]
+                        val color = ints[0]
+                        if (x > 0 && x < WORLD_SIZE_TYPE.size * 40f && y > 0 && y < WORLD_SIZE_TYPE.size * 40f) {
+                            val radius = floats[2]
 
-                        particleEntity.addParticle(
-                            x = x,
-                            y = y,
-                            radius = radius
-                        )
+                            particleEntity.addParticle(
+                                x = x,
+                                y = y,
+                                radius = radius,
+                                color = Color.rgba8888(Color.OLIVE)
+                            )
 
-                        if (particleEntity.particleMaxAmount - 2 < particleEntity.particleLastId) {
-                            particleEntity.resize()
+                            if (particleEntity.particleMaxAmount - 2 < particleEntity.particleLastId) {
+                                particleEntity.resize()
+                            }
                         }
                     }
                     else -> {}
@@ -114,11 +147,18 @@ class SimulationSystem(
         commandsManager.userCommandBuffer.swapAndConsume { cmd ->
             when (cmd) {
                 is PlayerCommand.SpawnCell -> {
+                    repeat(5000) {
+                        commandsManager.worldCommandBuffer[0].push(
+                            type = WorldCommandType.ADD_PARTICLE,
+                            floats = floatArrayOf(cmd.x + MathUtils.random(-2000f, 2000f), cmd.y + MathUtils.random(-2000f, 2000f), /*MathUtils.random(5f, 20f)*/20f),
+                            ints = intArrayOf(Color.rgba8888(Color.FOREST))
+                        )
+                    }
 //                    addCell(cmd.x, cmd.y, 18, false, genomeIndex = simEntity.currentGenomeIndex)
                 }
 
                 is PlayerCommand.DragCell -> {
-                    TODO()
+//                    TODO()
 //                    grabbedXLocal = cmd.dx
 //                    grabbedYLocal = cmd.dy
 //                    grabbedCellLocal = cmd.cellId
@@ -131,27 +171,6 @@ class SimulationSystem(
         }
     }
 
-    fun updateTick() {
-        if (simEntity.isFinish) {
-            dispose()
-        }
-        if (simEntity.isRestart) {
-            restartSim()
-        }
-
-        simEntity.tickCounter++
-        simEntity.timeSimulation += DELTA_SIM_TICK_TIME
-
-        processParticleCollision()
-        //TODO Process link physics
-        //TODO Process cell
-        //TODO Process substance
-        arrangementOfPositionsInTheGrid()
-        organManager.performOrgansNextStage()
-        executingCommandsFromTheWorld()
-        processingCommandsFromUser()
-    }
-
     fun stopUpdateThread() {
         simulationThread.interrupt()
         try {
@@ -160,15 +179,6 @@ class SimulationSystem(
             e.printStackTrace()
         }
         threadManager.dispose()
-    }
-
-
-    fun moveTo(px: Float, py: Float) {
-        commandsManager.userCommandBuffer.push(PlayerCommand.DragCell(px, py, 0))
-    }
-
-    fun onMouseClick(x: Float, y: Float) {
-        commandsManager.userCommandBuffer.push(PlayerCommand.SpawnCell(x, y))
     }
 
     fun dispose() {

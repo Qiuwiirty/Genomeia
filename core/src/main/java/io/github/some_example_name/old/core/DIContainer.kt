@@ -1,5 +1,6 @@
 package io.github.some_example_name.old.core
 
+import com.badlogic.gdx.Application
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.I18NBundle
 import com.badlogic.gdx.utils.Json
@@ -16,6 +17,10 @@ import io.github.some_example_name.old.systems.genomics.genome.GenomeManager
 import io.github.some_example_name.old.systems.genomics.genome.json.GenomeJsonReader
 import io.github.some_example_name.old.systems.physics.GridManager
 import io.github.some_example_name.old.systems.physics.PhysicsSystem
+import io.github.some_example_name.old.systems.render.RenderSystem
+import io.github.some_example_name.old.systems.render.ShaderManager
+import io.github.some_example_name.old.systems.render.ShaderManagerLibgdxApi
+import io.github.some_example_name.old.systems.render.TripleBufferManager
 import io.github.some_example_name.old.systems.simulation.SimulationSystem
 import io.github.some_example_name.old.systems.simulation.ThreadManager
 import java.util.Locale
@@ -71,6 +76,29 @@ object DIContainer {
     val threadManager = ThreadManager(
         simEntity = simEntity
     )
+
+    val tripleBufferManager = TripleBufferManager(
+        particleEntity
+    )
+
+    val shaderManager: ShaderManager = when (Gdx.app.type) {
+        Application.ApplicationType.Desktop -> ShaderManagerLibgdxApi()
+        Application.ApplicationType.Android -> TODO()
+        Application.ApplicationType.HeadlessDesktop -> TODO()
+        Application.ApplicationType.Applet -> TODO()
+        Application.ApplicationType.WebGL -> TODO()
+        Application.ApplicationType.iOS -> TODO()
+    }
+
+    val renderSystem = RenderSystem(
+        tripleBufferManager = tripleBufferManager,
+        simEntity = simEntity,
+        cellEntity = cellEntity,
+        linkEntity = linkEntity,
+        shaderManager = shaderManager,
+        particleEntity = particleEntity
+    )
+
     val simulationSystem by lazy {
         SimulationSystem(
             gridManager = gridManager,
@@ -86,7 +114,8 @@ object DIContainer {
             threadManager = threadManager,
             genomeManager = genomeManager,
             physicsSystem = physicsSystem,
-            simEntity = simEntity
+            simEntity = simEntity,
+            tripleBufferManager = tripleBufferManager
         )
     }
 }

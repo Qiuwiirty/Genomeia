@@ -1,10 +1,9 @@
-package io.github.some_example_name.old.systems.render
+package io.github.some_example_name.old.systems.render.opengles30
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.GL20.GL_INT
 import com.badlogic.gdx.graphics.GL20.GL_TEXTURE_2D
-import com.badlogic.gdx.graphics.GL30
 import com.badlogic.gdx.graphics.GL30.GL_RG32I
 import com.badlogic.gdx.graphics.GL30.GL_RG_INTEGER
 import com.badlogic.gdx.graphics.Pixmap
@@ -62,8 +61,8 @@ class IntTexture2DRG32I(val widthSize: Int, val heightSize: Int) {
             0,
             widthSize,
             heightSize,
-            GL30.GL_RG_INTEGER,
-            GL30.GL_INT,
+            GL_RG_INTEGER,
+            GL_INT,
             bufferInt
         )
     }
