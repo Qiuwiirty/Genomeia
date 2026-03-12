@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.input.GestureDetector
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.InputEvent
@@ -53,10 +54,29 @@ class SimulationScreen(
         spriteBatch = SpriteBatch()
         stage = Stage(ScreenViewport())
 
+
+        val screenPos = Vector3()
+        val worldBefore = Vector3()
+        val worldAfter = Vector3()
         val multiplexer = InputMultiplexer()
         val playGroundProcessor = object : InputAdapter() {
             override fun scrolled(amountX: Float, amountY: Float): Boolean {
 
+                screenPos.set(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), 0f)
+
+                camera.unproject(worldBefore.set(screenPos))
+
+                val zoomFactor = if (amountY > 0) 1.05f else 0.95f
+                val newZoom = MathUtils.clamp(camera.zoom * zoomFactor, 0.001f, 1000f)
+
+                camera.zoom = newZoom
+                camera.update()
+
+                camera.unproject(worldAfter.set(screenPos))
+
+                camera.position.sub(worldAfter.x - worldBefore.x, worldAfter.y - worldBefore.y, 0f)
+
+                camera.update()
                 return true
             }
         }
@@ -73,9 +93,11 @@ class SimulationScreen(
                 Gdx.graphics.height.toFloat()
             )
         }
-        camera
 
         font = BitmapFont()
+        // Масштабируем шрифт симуляционной информации под DPI (density)
+        // Это обеспечивает корректный размер текста при любом разрешении/DPI
+        font.data.setScale(Gdx.graphics.density)
 
         simulationSystem.startThread()
         root = Table()
@@ -95,14 +117,23 @@ class SimulationScreen(
         renderSystem.create()
 
         camera.rotate(-90f)
-        camera.zoom = 23f
-        camera.translate(8000f, 8000f)
+        camera.zoom = 0.2f
+        camera.translate(-192f, -192f)
         camera.update()
     }
 
 
     override fun render(delta: Float) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
+
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            val zoomFactor = if (true) 1.005f else 0.95f
+            val newZoom = MathUtils.clamp(camera.zoom * zoomFactor, 0.001f, 1000f)
+
+            camera.zoom = newZoom
+            camera.update()
+
+        }
 
         renderSystem.drawShader(camera)
         renderSystem.drawTextSimInfo(spriteBatch, font)
@@ -112,7 +143,27 @@ class SimulationScreen(
     }
 
     override fun resize(width: Int, height: Int) {
+        if (width == currentScreenWidth && height == currentScreenHeight) return
+
+        // Полноценный resize UI (Stage + Table + кнопки)
+        stage.viewport.update(width, height, true)
+
+        camera.viewportWidth = width.toFloat()
+        camera.viewportHeight = height.toFloat()
         camera.update()
+
+        // Обновляем масштаб шрифта симуляционной информации (на случай редких изменений density)
+        font.data.setScale(Gdx.graphics.density)
+
+        currentScreenWidth = width
+        currentScreenHeight = height
+
+        // Перестраиваем всё меню заново — теперь кнопки корректно переносятся в новые строки
+        // при любом изменении ширины (поворот экрана, ресайз окна, разные разрешения)
+        rebuildMenu()
+
+        // Уведомляем открытый диалог (GenomeListDialog), если он есть — он сам пересчитает свой layout
+        onResize?.invoke()
     }
 
     override fun pause() {

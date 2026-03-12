@@ -1,13 +1,7 @@
 package io.github.some_example_name.old.systems.genomics.genomic_transformations
 
-import com.badlogic.gdx.math.MathUtils
 import io.github.some_example_name.old.commands.AddCell
-import io.github.some_example_name.old.ui.screens.GlobalSettings.SAFE_DIVISION_MODE
 import io.github.some_example_name.old.systems.simulation.SimulationSystem
-import io.github.some_example_name.old.systems.physics.GridManager.Companion.CELL_SIZE
-import kotlin.collections.get
-import kotlin.math.PI
-import kotlin.text.get
 
 fun divideCell(index: Int, threadId: Int) {
     TODO()
@@ -40,7 +34,7 @@ fun SimulationSystem.collectCells(gridX: Int, gridY: Int, radius: Int = 3): IntA
     val list = ArrayList<Int>()
     for (dy in -radius..radius) {
         for (dx in -radius..radius) {
-            val arr = gridManager.getCells(gridX + dx, gridY + dy)
+            val arr = gridManager.getParticles(gridX + dx, gridY + dy)
             for (v in arr) list.add(v)
         }
     }

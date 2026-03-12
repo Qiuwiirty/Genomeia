@@ -9,7 +9,7 @@ class ShaderManagerAndroid: ShaderManager {
         TODO("Not yet implemented")
     }
 
-    override fun render(currentRead: ByteBuffer, cameraProjection: Matrix4) {
+    override fun render(currentRead: ByteBuffer, cameraProjection: Matrix4, isNewFrame: Boolean) {
         TODO("Not yet implemented")
     }
 

@@ -3,7 +3,6 @@ package io.github.some_example_name.old.genome_editor
 import io.github.some_example_name.old.core.utils.distanceTo
 import io.github.some_example_name.old.core.utils.UnorderedIntPairMap
 import io.github.some_example_name.old.systems.physics.GridManager
-import io.github.some_example_name.old.systems.physics.GridManager.Companion.CELL_SIZE
 import kotlin.system.measureNanoTime
 
 class GenomeEditorManager(
@@ -59,12 +58,12 @@ class GenomeEditorManager(
     }
 
     fun getClickedCellIndex(worldX: Float, worldY: Float): Int? {
-        val x = (worldX / CELL_SIZE).toInt()
-        val y = (worldY / CELL_SIZE).toInt()
+        val x = worldX.toInt()
+        val y = worldY.toInt()
         val allCells = mutableListOf<Int>()
         for (i in -1..1) {
             for (j in -1..1) {
-                allCells.addAll(gridManager.getCells(x + i, y + j).toList())
+                allCells.addAll(gridManager.getParticles(x + i, y + j).toList())
             }
         }
 

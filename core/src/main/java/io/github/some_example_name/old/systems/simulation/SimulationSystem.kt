@@ -13,13 +13,15 @@ import io.github.some_example_name.old.entities.ParticleEntity
 import io.github.some_example_name.old.entities.PheromoneEntity
 import io.github.some_example_name.old.entities.SimEntity
 import io.github.some_example_name.old.entities.SubstancesEntity
-import io.github.some_example_name.old.systems.genomics.genome.GenomeManager
 import io.github.some_example_name.old.systems.genomics.OrganManager
+import io.github.some_example_name.old.systems.genomics.genome.GenomeManager
 import io.github.some_example_name.old.systems.physics.GridManager
 import io.github.some_example_name.old.systems.physics.GridManager.Companion.WORLD_SIZE_TYPE
 import io.github.some_example_name.old.systems.physics.PhysicsSystem
 import io.github.some_example_name.old.systems.render.TripleBufferManager
 import kotlin.inc
+import kotlin.math.sqrt
+import kotlin.random.Random
 
 class SimulationSystem(
     val gridManager: GridManager = GridManager(),
@@ -85,7 +87,7 @@ class SimulationSystem(
         for (chunk in 0..<ThreadManager.Companion.THREAD_COUNT) {
             threadManager.futures.add(threadManager.executor.submit {
                 for (i in 0..<commandsManager.oddCounter[chunk]) {
-                    physicsSystem.moveParticle(commandsManager.oddChunkPositionStack[chunk][i])
+                    physicsSystem.moveParticle(commandsManager.oddChunkPositionStack[chunk][i], chunk)
                 }
             })
         }
@@ -95,7 +97,7 @@ class SimulationSystem(
         for (chunk in 0..<ThreadManager.Companion.THREAD_COUNT) {
             threadManager.futures.add(threadManager.executor.submit {
                 for (i in 0..<commandsManager.evenCounter[chunk]) {
-                    physicsSystem.moveParticle(commandsManager.evenChunkPositionStack[chunk][i])
+                    physicsSystem.moveParticle(commandsManager.evenChunkPositionStack[chunk][i], chunk)
                 }
             })
         }
@@ -121,15 +123,22 @@ class SimulationSystem(
                     WorldCommandType.ADD_PARTICLE -> {
                         val x = floats[0]
                         val y = floats[1]
-                        val color = ints[0]
-                        if (x > 0 && x < WORLD_SIZE_TYPE.size * 40f && y > 0 && y < WORLD_SIZE_TYPE.size * 40f) {
+//                        val color = ints[0]
+                        if (x > 0 && x < WORLD_SIZE_TYPE.size && y > 0 && y < WORLD_SIZE_TYPE.size) {
                             val radius = floats[2]
+
+                            val r = 128 + Random.nextInt(128)
+                            val g = 128 + Random.nextInt(128)
+                            val b = 128 + Random.nextInt(128)
+                            val a = 255
+
+                            val color = (r shl 24) or (g shl 16) or (b shl 8) or a
 
                             particleEntity.addParticle(
                                 x = x,
                                 y = y,
                                 radius = radius,
-                                color = Color.rgba8888(Color.OLIVE)
+                                color = color//Color.rgba8888(Color.OLIVE)
                             )
 
                             if (particleEntity.particleMaxAmount - 2 < particleEntity.particleLastId) {
@@ -147,10 +156,31 @@ class SimulationSystem(
         commandsManager.userCommandBuffer.swapAndConsume { cmd ->
             when (cmd) {
                 is PlayerCommand.SpawnCell -> {
-                    repeat(5000) {
+//                    repeat(10_000) {
+//                        commandsManager.worldCommandBuffer[0].push(
+//                            type = WorldCommandType.ADD_PARTICLE,
+//                            floats = floatArrayOf(cmd.x + MathUtils.random(-40f, 40f), cmd.y + MathUtils.random(-40f, 40f), MathUtils.random(0.4f, 0.5f)),
+//                            ints = intArrayOf(Color.rgba8888(Color.FOREST))
+//                        )
+//                    }
+                    val radius = 20f
+
+                    repeat(1_000) {
+                        val angle = MathUtils.random(0f, MathUtils.PI2)
+
+                        // больше частиц ближе к центру
+                        val r = radius * sqrt(MathUtils.random())
+
+                        val x = cmd.x + MathUtils.cos(angle) * r
+                        val y = cmd.y + MathUtils.sin(angle) * r
+
                         commandsManager.worldCommandBuffer[0].push(
                             type = WorldCommandType.ADD_PARTICLE,
-                            floats = floatArrayOf(cmd.x + MathUtils.random(-2000f, 2000f), cmd.y + MathUtils.random(-2000f, 2000f), /*MathUtils.random(5f, 20f)*/20f),
+                            floats = floatArrayOf(
+                                x,
+                                y,
+                                MathUtils.random(0.4f, 0.5f)
+                            ),
                             ints = intArrayOf(Color.rgba8888(Color.FOREST))
                         )
                     }

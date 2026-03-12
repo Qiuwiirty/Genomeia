@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.math.Matrix4
 import io.github.some_example_name.old.entities.CellEntity
 import io.github.some_example_name.old.entities.LinkEntity
 import io.github.some_example_name.old.entities.ParticleEntity
@@ -19,20 +20,32 @@ class RenderSystem(
     val shaderManager: ShaderManager
 ) {
 
+    val fontMatrix = Matrix4()
+
     fun create() {
         shaderManager.create()
     }
 
     fun drawShader(camera: Camera) {
-        val currentRead = tripleBufferManager.getAndSwapConsumer()
+        val (currentRead, isNewFrame) = tripleBufferManager.getAndSwapConsumer()
         shaderManager.render(
             currentRead = currentRead,
-            cameraProjection = camera.combined
+            cameraProjection = camera.combined,
+            isNewFrame = isNewFrame
         )
     }
-
     fun drawTextSimInfo(spriteBatch: SpriteBatch, font: BitmapFont) {
         //TODO тут кстати тоже нужна синхронизация, хоть и не так критично
+
+        val uiProjection = fontMatrix.setToOrtho2D(
+            0f,
+            0f,
+            Gdx.graphics.width.toFloat(),
+            Gdx.graphics.height.toFloat()
+        )
+        spriteBatch.projectionMatrix = uiProjection
+//        font.data.setScale(Gdx.graphics.density * 2f)
+
         spriteBatch.begin()
         font.draw(
             spriteBatch,
@@ -47,7 +60,7 @@ class RenderSystem(
                     NeuronImpulseOutput ${if (simEntity.grabbedCell != -1) cellEntity.neuronImpulseOutput[simEntity.grabbedCell] else "0.0"}
                 """.trimIndent(),
             30f,
-            120f
+            140f
         )
         font.data.setScale(1f)
         spriteBatch.end()

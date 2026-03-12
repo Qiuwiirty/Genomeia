@@ -3,6 +3,7 @@ package io.github.some_example_name.old.entities
 import io.github.some_example_name.old.systems.physics.GridManager
 import io.github.some_example_name.old.systems.physics.GridManager.Companion.CELL_SIZE
 import io.github.some_example_name.old.systems.physics.PhysicsSystem.Companion.PARTICLE_MAX_RADIUS
+import io.github.some_example_name.old.systems.simulation.ThreadManager.Companion.getThreadId
 import it.unimi.dsi.fastutil.ints.IntArrayList
 import java.util.BitSet
 import kotlin.collections.fill
@@ -17,7 +18,7 @@ class ParticleEntity(
 
     var deadParticlesStackAmount = -1
     var deadParticlesStack = IntArray(250_000) { -1 }
-    val list = IntArrayList()
+    val aliveParticlesIndex = IntArrayList()
 
     var isAliveParticle = BitSet(particleMaxAmount)
 
@@ -40,9 +41,9 @@ class ParticleEntity(
         color: Int,
         vx: Float = 0f,
         vy: Float = 0f,
-        dragCoefficient: Float = 0.03f,
+        dragCoefficient: Float = 0.01f,
         effectOnContact: Boolean = false,
-        cellStiffness: Float = 2.0f
+        cellStiffness: Float = 0.22f
     ) {
         val index =
             if (deadParticlesStackAmount >= 0) deadParticlesStack[deadParticlesStackAmount--]
@@ -50,8 +51,8 @@ class ParticleEntity(
         isAliveParticle[index] = true
 
         gridId[index] = gridManager.addCell(
-            (x / CELL_SIZE).toInt(),
-            (y / CELL_SIZE).toInt(),
+            x.toInt(),
+            y.toInt(),
             index
         )
 

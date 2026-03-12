@@ -10,45 +10,51 @@ class TripleBufferManager(
 ) {
 
     companion object {
-        const val PARTICLE_MAX_AMOUNT = 1_000_000 //TODO сделать динамическое увеличение
-        const val BUFFER_SIZE_BYTES = PARTICLE_MAX_AMOUNT * 16  // 16 bytes per particle: 3 floats + 1 int
+        const val PARTICLE_MAX_AMOUNT = 2_500_000
+        const val BUFFER_SIZE_BYTES = PARTICLE_MAX_AMOUNT * 16
     }
 
     private val bufferA: ByteBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE_BYTES).order(ByteOrder.nativeOrder())
     private val bufferB: ByteBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE_BYTES).order(ByteOrder.nativeOrder())
-    private val bufferC: ByteBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE_BYTES).order(ByteOrder.nativeOrder())
+    // bufferC больше не нужен — достаточно двойного буфера на CPU
 
-    private val sharedBuffer: AtomicReference<ByteBuffer> = AtomicReference(bufferA)
-    private var producerBuffer: ByteBuffer = bufferB
-    private var consumerBuffer: ByteBuffer = bufferC
+    private val latestBuffer = AtomicReference(bufferA)   // буфер, который видит рендер
+    private var writeBuffer: ByteBuffer = bufferB         // куда пишет симуляция
+
+    private var lastReturnedBuffer: ByteBuffer? = null    // для правильного isNewFrame (только в render thread)
 
     private fun putBufferData() {
-        producerBuffer.clear()
+        writeBuffer.clear()
         with(particleEntity) {
             for (i in 0..particleLastId) {
-                producerBuffer.putFloat(x[i])
-                producerBuffer.putFloat(y[i])
-                producerBuffer.putFloat(radius[i])
-                producerBuffer.putInt(color[i])
+                writeBuffer.putFloat(x[i])
+                writeBuffer.putFloat(y[i])
+                writeBuffer.putFloat(radius[i])
+                writeBuffer.putInt(color[i])
             }
         }
-        producerBuffer.flip()
+        writeBuffer.flip()
     }
 
-    // После обновления позиций симуляции (вызывается в потоке симуляции)
+    // Вызывается ТОЛЬКО когда симуляция сделала шаг (как do_sync в твоём C++)
     fun updateAndCommitProducer() {
         putBufferData()
-        // Атомарный своп producerBuffer с sharedBuffer
-        val temp = sharedBuffer.getAndSet(producerBuffer)
-        producerBuffer = temp
+
+        // Публикуем новый буфер и забираем старый для следующей записи
+        val old = latestBuffer.getAndSet(writeBuffer)
+        writeBuffer = old
     }
 
-    // Перед чтением данных в main thread (вызывается в потоке рендеринга)
-    fun getAndSwapConsumer(): ByteBuffer {
-        // Атомарный своп consumerBuffer с sharedBuffer
-        val temp = sharedBuffer.getAndSet(consumerBuffer)
-        consumerBuffer = temp
-        consumerBuffer.rewind()
-        return consumerBuffer
+    // Вызывается каждый кадр рендера
+    fun getAndSwapConsumer(): Pair<ByteBuffer, Boolean> {
+        val currentLatest = latestBuffer.get()
+
+        val isNewFrame = currentLatest !== lastReturnedBuffer
+        if (isNewFrame) {
+            lastReturnedBuffer = currentLatest
+        }
+
+        currentLatest.rewind()
+        return currentLatest to isNewFrame
     }
 }

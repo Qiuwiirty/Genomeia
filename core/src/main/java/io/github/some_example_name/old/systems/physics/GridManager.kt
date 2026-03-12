@@ -1,114 +1,165 @@
 package io.github.some_example_name.old.systems.physics
 
 import io.github.some_example_name.old.systems.physics.PhysicsSystem.Companion.PARTICLE_MAX_RADIUS
+import io.github.some_example_name.old.systems.simulation.ThreadManager.Companion.CHUNK_SIZE
+import io.github.some_example_name.old.systems.simulation.ThreadManager.Companion.getChunkId
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
+import it.unimi.dsi.fastutil.ints.IntArrayList
+import java.util.BitSet
 
-
-//TODO оценить масштаб проблемы grid based оптимизации
-// TODO: Assess the scale of the grid-based optimization problem
 class GridManager (
     var gridCellWidthSize: Int = WORLD_CELL_WIDTH,
     var gridCellHeightSize: Int = WORLD_CELL_HEIGHT,
 ) {
 
-    var GRID_SIZE = gridCellWidthSize * gridCellHeightSize
-    var WORLD_WIDTH = gridCellWidthSize * CELL_SIZE
-    var WORLD_HEIGHT = gridCellHeightSize * CELL_SIZE
-    var WORLD_WIDTH_MINUS_CELL_RADIUS = WORLD_WIDTH - PARTICLE_MAX_RADIUS
-    var WORLD_HEIGHT_MINUS_CELL_RADIUS = WORLD_HEIGHT - PARTICLE_MAX_RADIUS
+    var gridSize = gridCellWidthSize * gridCellHeightSize
+    val grid = IntArray(gridSize * MAX_AMOUNT_OF_PARTICLES) { -3 }
+    val particleCounts = ByteArray(gridSize)
+    val isMoreThenMaxAmount = BitSet(gridSize)
+    val mapMoreThenMax = Array(CHUNK_SIZE) { Int2ObjectOpenHashMap<IntArrayList>() }
 
-    //TODO возможно будет лучше: Off-heap хранение (ByteBuffer) Для очень больших сеток (если важно избегать GC)
-    // TODO might be better: Off-heap storage (ByteBuffer) For very large grids (if avoiding GC is important)
-    val grid = IntArray(GRID_SIZE * MAX_AMOUNT_OF_CELLS) { -1 }
-    val cellCounts = IntArray(GRID_SIZE) // Счетчик элементов в каждой ячейке // Count of elements in each cell
 
-    // Добавить элемент в ячейку (x, y) // Add an element to cell (x, y)
-    fun addCell(x: Int, y: Int, value: Int/*, killCell: () -> Unit*/): Int {
+    fun addCell(x: Int, y: Int, value: Int): Int {
         if (x < 0 || x >= gridCellWidthSize || y < 0 || y >= gridCellHeightSize) {
-//            killCell.invoke()
             return -1
         }
         val cellIndex = y * gridCellWidthSize + x
-        val currentCount = cellCounts[cellIndex]
+        val currentCount = particleCounts[cellIndex]
 
-        if (currentCount >= MAX_AMOUNT_OF_CELLS) {
+        if (currentCount >= MAX_AMOUNT_OF_PARTICLES) {
             println("MAX_AMOUNT_OF_CELLS")
-//            killCell.invoke()
-            return -1 // Ячейка заполнена
+            val threadId = getChunkId(cellIndex)
+            var list = mapMoreThenMax[threadId].get(cellIndex)
+            if (list == null) {
+                list = IntArrayList()
+                try {
+                    mapMoreThenMax[threadId].put(cellIndex, list)
+                } catch (e: Exception) {
+                    println("threadId $threadId cellIndex $cellIndex")
+                    throw e
+                }
+
+            }
+            list.add(value)
+
+            isMoreThenMaxAmount[cellIndex] = true
+            particleCounts[cellIndex]++
+            return cellIndex
         }
 
-        val gridIndex = cellIndex * MAX_AMOUNT_OF_CELLS + currentCount
+        val gridIndex = cellIndex * MAX_AMOUNT_OF_PARTICLES + currentCount
         grid[gridIndex] = value
-        cellCounts[cellIndex]++
+        particleCounts[cellIndex]++
         return cellIndex
     }
 
     fun addCell(cellIndex: Int, value: Int): Int {
-        val currentCount = cellCounts[cellIndex]
+        val currentCount = particleCounts[cellIndex]
 
-        if (currentCount >= MAX_AMOUNT_OF_CELLS) {
+        if (currentCount >= MAX_AMOUNT_OF_PARTICLES) {
             println("MAX_AMOUNT_OF_CELLS")
             return -1 // Ячейка заполнена // The cell is filled
         }
 
-        val gridIndex = cellIndex * MAX_AMOUNT_OF_CELLS + currentCount
+        val gridIndex = cellIndex * MAX_AMOUNT_OF_PARTICLES + currentCount
         grid[gridIndex] = value
-        cellCounts[cellIndex]++
+        particleCounts[cellIndex]++
         return cellIndex
     }
 
     // Удалить элемент из ячейки (x, y) по значению (если порядок не важен)
     // Remove element from cell (x, y) by value (if order doesn't matter)
-    fun removeCell(x: Int, y: Int, value: Int): Boolean {
-        if (x < 0 || x >= gridCellWidthSize || y < 0 || y >= gridCellHeightSize) return false
-        val cellIndex = y * gridCellWidthSize + x
-        val start = cellIndex * MAX_AMOUNT_OF_CELLS
-        val end = start + cellCounts[cellIndex] - 1
+    fun removeCell(x: Int, y: Int, value: Int) {
+        if (x < 0 || x >= gridCellWidthSize || y < 0 || y >= gridCellHeightSize) return
 
+        val cellIndex = y * gridCellWidthSize + x
+        val start = cellIndex * MAX_AMOUNT_OF_PARTICLES
+
+        // Сколько слотов в основном массиве grid нужно просматривать
+        val searchCount = if (isMoreThenMaxAmount[cellIndex])
+            MAX_AMOUNT_OF_PARTICLES
+        else
+            particleCounts[cellIndex].toInt()
+
+        val end = start + searchCount - 1
+
+        // 1. Ищем в основном массиве grid
         for (i in start..end) {
             if (grid[i] == value) {
-                // Заменяем удаляемый элемент последним в ячейке
-                // Replace the deleted element with the last one in the cell
-                grid[i] = grid[end]
-                grid[end] = -1
-                cellCounts[cellIndex]--
-                return true
+
+                if (isMoreThenMaxAmount[cellIndex]) {
+                    // Переполнение — берём последний элемент из списка переполнения
+                    val threadId = getChunkId(cellIndex)
+                    val list = mapMoreThenMax[threadId].get(cellIndex)
+
+                    if (list != null && !list.isEmpty) {
+                        val movedValue = list.removeInt(list.size - 1)
+                        grid[i] = movedValue
+
+                        if (list.isEmpty) {
+                            isMoreThenMaxAmount[cellIndex] = false
+                            mapMoreThenMax[threadId].remove(cellIndex)
+                        }
+                    }
+                } else {
+                    // Обычный случай — swap-remove (КЛАССИЧЕСКИЙ)
+                    grid[i] = grid[end]
+                    // ← УБРАЛИ grid[end] = -2 ! Это и было источником проблемы
+                }
+
+                particleCounts[cellIndex]--
+                return
             }
         }
-        return false // Элемент не найден // Element not found
-    }
 
-    fun getCellsCount(x: Int, y: Int): Int {
-        if (x < 0 || x >= gridCellWidthSize || y < 0 || y >= gridCellHeightSize) {
-            return 0
+        // 2. Не нашли в grid → ищем в списке переполнения
+        if (isMoreThenMaxAmount[cellIndex]) {
+            val threadId = getChunkId(cellIndex)
+            val list = mapMoreThenMax[threadId].get(cellIndex)
+
+            if (list != null && list.rem(value)) {
+                if (list.isEmpty) {
+                    isMoreThenMaxAmount[cellIndex] = false
+                    mapMoreThenMax[threadId].remove(cellIndex)
+                }
+                particleCounts[cellIndex]--
+            }
         }
-        val cellIndex = y * gridCellWidthSize + x
-        return cellCounts[cellIndex]
     }
 
     // Получить все элементы ячейки (x, y) // Get all cell elements (x, y)
-    fun getCells(x: Int, y: Int): IntArray {
+    fun getParticles(x: Int, y: Int): IntArray {
         if (x < 0 || x >= gridCellWidthSize || y < 0 || y >= gridCellHeightSize) {
-            return IntArray(0) // Возвращаем пустой массив вместо списка // Return an empty array instead of a list
+            return IntArray(0)
         }
 
         val cellIndex = y * gridCellWidthSize + x
-        val start = cellIndex * MAX_AMOUNT_OF_CELLS
-        val count = cellCounts[cellIndex]
-
-        // Создаем массив нужного размера и копируем данные // Create an array of the required size and copy the data
-        return grid.copyOfRange(start, start + count)
+        return getParticlesIndex(cellIndex)
     }
 
-    fun getCells(cellIndex: Int): IntArray {
-        val start = cellIndex * MAX_AMOUNT_OF_CELLS
-        val count = cellCounts[cellIndex]
+    fun getParticlesIndex(cellIndex: Int): IntArray {
+        val start = cellIndex * MAX_AMOUNT_OF_PARTICLES
+        val count = if (particleCounts[cellIndex] >= MAX_AMOUNT_OF_PARTICLES)
+            MAX_AMOUNT_OF_PARTICLES
+        else
+            particleCounts[cellIndex].toInt()
 
-        // Создаем массив нужного размера и копируем данные // Create an array of the required size and copy the data
-        return grid.copyOfRange(start, start + count)
+        return if (!isMoreThenMaxAmount[cellIndex]) {
+            grid.copyOfRange(start, start + count)
+        } else {
+            val threadId = getChunkId(cellIndex)
+            val extraList = mapMoreThenMax[threadId].get(cellIndex)
+            val extraSize = extraList?.size ?: 0
+
+            IntArray(count + extraSize).apply {
+                if (extraSize > 0) System.arraycopy(extraList!!.elements(), 0, this, 0, extraSize)
+                System.arraycopy(grid, start, this, extraSize, count)
+            }
+        }
     }
 
     fun clearAll() {
-        cellCounts.fill(0)
+        particleCounts.fill(0)
     }
 
     companion object {
@@ -117,7 +168,7 @@ class GridManager (
         val WORLD_CELL_HEIGHT = WORLD_SIZE_TYPE.size
         val GRID_SIZE = WORLD_CELL_WIDTH * WORLD_CELL_HEIGHT
         const val CELL_SIZE = PARTICLE_MAX_RADIUS * 2
-        const val MAX_AMOUNT_OF_CELLS = 12
+        const val MAX_AMOUNT_OF_PARTICLES = 4
     }
 }
 
@@ -129,5 +180,5 @@ enum class WorldSize(val size: Int, val threadCount: Int, val generateWorldSize:
 
     L(96, 6, 153, 0.25f), //Large (большой)
 
-    XL(192*2, 6, 305, 0.125f), //Extra Large (очень большой)
+    XL(192 * 5, 6, 305, 0.125f), //Extra Large (очень большой)
 }

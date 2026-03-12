@@ -149,9 +149,12 @@ class ThreadManager(
     }
 
     companion object {
-        val THREAD_COUNT = Runtime.getRuntime().availableProcessors()
+        fun getThreadId(gridIndex: Int) = gridIndex / GRID_INDEX_DIVIDER
+        fun getChunkId(gridIndex: Int) = gridIndex / CHUNK_SIZE
+        val THREAD_COUNT = Runtime.getRuntime().availableProcessors() * 4
         val TOTAL_CHUNKS = THREAD_COUNT * 2
         val CHUNK_SIZE = GRID_SIZE / TOTAL_CHUNKS
+        val GRID_INDEX_DIVIDER = CHUNK_SIZE * 2
         val HALF_CHUNK_HEIGHT = (WORLD_CELL_HEIGHT / TOTAL_CHUNKS) / 2f
     }
 }

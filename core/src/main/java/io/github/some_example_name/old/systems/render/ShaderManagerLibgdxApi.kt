@@ -14,7 +14,7 @@ import java.nio.IntBuffer
 
 interface ShaderManager {
     fun create()
-    fun render(currentRead: ByteBuffer, cameraProjection: Matrix4)
+    fun render(currentRead: ByteBuffer, cameraProjection: Matrix4, isNewFrame: Boolean)
     fun dispose()
 }
 
@@ -22,6 +22,7 @@ class ShaderManagerLibgdxApi : ShaderManager {
     // Три SSBO IDs для тройного буфера на GPU (ротация для избежания stalls)
     private val ssboIds = IntArray(3)
     private var currentSsboIndex = 0  // Для ротации SSBO
+    private var activeSsboId = 0
 
     private lateinit var shader: ShaderProgram
     private lateinit var mesh: Mesh
@@ -42,6 +43,9 @@ class ShaderManagerLibgdxApi : ShaderManager {
             // Нет необходимости в glBindBufferBase здесь, так как binding динамический в render
         }
         Gdx.gl31.glBindBuffer(GL31.GL_SHADER_STORAGE_BUFFER, 0)
+
+        activeSsboId = ssboIds[0]           // начальный
+        currentSsboIndex = 0
 
         val vertexShader = Gdx.files.internal("shaders/debug/circle.vert").readString()
         val fragmentShader = Gdx.files.internal("shaders/debug/circle.frag").readString()
@@ -64,34 +68,36 @@ class ShaderManagerLibgdxApi : ShaderManager {
 
     override fun render(
         currentRead: ByteBuffer,
-        cameraProjection: Matrix4
+        cameraProjection: Matrix4,
+        isNewFrame: Boolean
     ) {
-        // Ротация SSBO: Выбираем следующий ID
-        val ssboId = ssboIds[currentSsboIndex]
-        currentSsboIndex = (currentSsboIndex + 1) % 3
-
-        // Аплоад данных в текущий SSBO
-        Gdx.gl31.glBindBuffer(GL31.GL_SHADER_STORAGE_BUFFER, ssboId)
-//        val dataSize = currentRead.remaining()
         val dataSize = currentRead.remaining()
-        val numInstances = dataSize / 16  // 16 байт на частицу
-        if (numInstances == 0) return  // Нет данных — skip
-        Gdx.gl31.glBufferSubData(GL31.GL_SHADER_STORAGE_BUFFER, 0, dataSize, currentRead)
-        Gdx.gl31.glBindBuffer(GL31.GL_SHADER_STORAGE_BUFFER, 0)
+        val numInstances = dataSize / 16
+        if (numInstances == 0) return
 
-        // Bind SSBO к binding point 0
-        Gdx.gl31.glBindBufferBase(GL31.GL_SHADER_STORAGE_BUFFER, 0, ssboId)
+        // ←←← ТОЛЬКО ПРИ НОВОМ КАДРЕ: ротация + загрузка
+        if (isNewFrame) {
+            currentSsboIndex = (currentSsboIndex + 1) % 3
+            val ssboId = ssboIds[currentSsboIndex]
+            activeSsboId = ssboId
 
-        // Рендер (адаптируйте под ваш mesh и draw call, здесь пример для instanced draw)
+            Gdx.gl31.glBindBuffer(GL31.GL_SHADER_STORAGE_BUFFER, ssboId)
+            Gdx.gl31.glBufferSubData(GL31.GL_SHADER_STORAGE_BUFFER, 0, dataSize, currentRead)
+            Gdx.gl31.glBindBuffer(GL31.GL_SHADER_STORAGE_BUFFER, 0)
+        }
+
+        // Всегда рисуем текущий активный SSBO (при паузе — тот же самый!)
         Gdx.gl.glEnable(GL20.GL_BLEND)
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
-        shader.bind()
-        shader.setUniformMatrix("u_projTrans", cameraProjection)  // Установите uniform если нужно
-        mesh.bind(shader)
-        Gdx.gl31.glDrawArraysInstanced(GL20.GL_TRIANGLE_STRIP, 0, 4, TripleBufferManager.PARTICLE_MAX_AMOUNT)  // Пример для quad mesh
-        mesh.unbind(shader)
 
-        // Unbind SSBO
+        shader.bind()
+        shader.setUniformMatrix("u_projTrans", cameraProjection)
+        mesh.bind(shader)
+
+        Gdx.gl31.glBindBufferBase(GL31.GL_SHADER_STORAGE_BUFFER, 0, activeSsboId)
+        Gdx.gl31.glDrawArraysInstanced(GL20.GL_TRIANGLE_STRIP, 0, 4, numInstances)
+
+        mesh.unbind(shader)
         Gdx.gl31.glBindBufferBase(GL31.GL_SHADER_STORAGE_BUFFER, 0, 0)
     }
 

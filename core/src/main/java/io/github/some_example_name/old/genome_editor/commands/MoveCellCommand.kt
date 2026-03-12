@@ -19,12 +19,12 @@ fun getAllCloseNeighboursEditor(
     editorCells: List<EditorCell>,
     grabbedCellIndex: Int?
 ): List<Int> {
-    val gridGrabbedX = (grabbedX / CELL_SIZE).toInt()
-    val gridGrabbedY = (grabbedY / CELL_SIZE).toInt()
+    val gridGrabbedX = grabbedX.toInt()
+    val gridGrabbedY = grabbedY.toInt()
     val allCells = mutableListOf<Int>()
     for (i in -1..1) {
         for (j in -1..1) {
-            allCells.addAll(gridManager.getCells(gridGrabbedX + i, gridGrabbedY + j).toList())
+            allCells.addAll(gridManager.getParticles(gridGrabbedX + i, gridGrabbedY + j).toList())
         }
     }
     val filteredByDistance = allCells.filter {

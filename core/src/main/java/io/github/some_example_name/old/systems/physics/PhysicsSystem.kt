@@ -4,6 +4,7 @@ import io.github.some_example_name.old.commands.CommandsManager
 import io.github.some_example_name.old.core.SubstrateSettings
 import io.github.some_example_name.old.entities.ParticleEntity
 import io.github.some_example_name.old.core.utils.invSqrt
+import io.github.some_example_name.old.entities.SimEntity
 import io.github.some_example_name.old.systems.simulation.ThreadManager.Companion.HALF_CHUNK_HEIGHT
 import kotlin.math.abs
 
@@ -11,7 +12,8 @@ class PhysicsSystem(
     val entity: ParticleEntity,
     val gridManager: GridManager,
     val substrateSettings: SubstrateSettings,
-    val commandsManager: CommandsManager
+    val commandsManager: CommandsManager,
+    val simEntity: SimEntity
 ) {
 
     fun processGridChunkPhysics(start: Int, end: Int, threadId: Int, isOdd: Boolean) {
@@ -19,14 +21,20 @@ class PhysicsSystem(
             val x = i % GridManager.WORLD_CELL_WIDTH
             val y = i / GridManager.WORLD_CELL_WIDTH
 
-            if (gridManager.cellCounts[i] > 0) {
-                val cells = gridManager.getCells(i)
+            if (gridManager.particleCounts[i] > 0) {
+                val cells = gridManager.getParticlesIndex(i)
 
                 processCellClosestCollision(cells, threadId)
 
                 for (cellIndex in cells) {
                     processNeighborsCellsCollision(cellIndex, x, y, threadId)
                     distributeParticleIndicesAcrossChunks(cellIndex, threadId, isOdd)
+
+//                    val default = getChunkId(i)
+//                    entity.color[cellIndex] = if (i % 2 != 0) {
+////                        println("lol")
+//                        Color.rgba8888(Color.OLIVE)
+//                    } else Color.rgba8888(Color.MAGENTA)
                 }
             }
         }
@@ -49,16 +57,17 @@ class PhysicsSystem(
     private fun processNeighborsCellsCollision(cellId: Int, gridX: Int, gridY: Int, threadId: Int) {
         //TODO Это можно превратить в 2 цикла, через два горизонтальных среза
         //TODO This can be turned into 2 cycles, through two horizontal slices
-        gridManager.getCells(gridX - 1, gridY + 1).also { ids ->
+        gridManager.getParticles(gridX - 1, gridY + 1).also { ids ->
             for (id in ids) repulse(cellId, id, false, threadId)
         }
-        gridManager.getCells(gridX, gridY + 1).also { ids ->
+        gridManager.getParticles(gridX, gridY + 1).also { ids ->
             for (id in ids) repulse(cellId, id, false, threadId)
         }
-        gridManager.getCells(gridX + 1, gridY + 1).also { ids ->
+        gridManager.getParticles(gridX + 1, gridY + 1).also { ids ->
             for (id in ids) repulse(cellId, id, false, threadId)
         }
-        gridManager.getCells(gridX + 1, gridY).also { ids ->
+
+        gridManager.getParticles(gridX + 1, gridY).also { ids ->
             for (id in ids) repulse(cellId, id, false, threadId)
         }
     }
@@ -80,6 +89,8 @@ class PhysicsSystem(
 //        }
 //        if (linkId != -1) return
 
+        if (cellBId < 0) println("cellBId")
+        if (cellAId < 0) println("cellAId")
         val dx = x[cellAId] - x[cellBId]
         val dy = y[cellAId] - y[cellBId]
         val dx2 = dx * dx
@@ -246,33 +257,44 @@ class PhysicsSystem(
         if (x[cellId] < radius[cellId]) {
             x[cellId] = radius[cellId]
             vx[cellId] *= -0.8f
-        } else if (x[cellId] > gridManager.WORLD_WIDTH - radius[cellId]) {
-            x[cellId] = gridManager.WORLD_WIDTH - radius[cellId]
+        } else if (x[cellId] > gridManager.gridCellWidthSize - radius[cellId]) {
+            x[cellId] = gridManager.gridCellWidthSize - radius[cellId]
             vx[cellId] *= -0.8f
         }
 
         if (y[cellId] < radius[cellId]) {
             y[cellId] = radius[cellId]
             vy[cellId] *= -0.8f
-        } else if (y[cellId] > gridManager.WORLD_WIDTH - radius[cellId]) {
-            y[cellId] = gridManager.WORLD_WIDTH - radius[cellId]
+        } else if (y[cellId] > gridManager.gridCellHeightSize - radius[cellId]) {
+            y[cellId] = gridManager.gridCellHeightSize - radius[cellId]
             vy[cellId] *= -0.8f
         }
     }
 
-    fun moveParticle(i: Int) = with(entity) {
-        val oldX = (x[i] / GridManager.Companion.CELL_SIZE).toInt()
-        val oldY = (y[i] / GridManager.Companion.CELL_SIZE).toInt()
-        vx[i] += 0.05f
-//        vy[i] -= 0.05f
+    fun moveParticle(i: Int, threadId: Int/*, bool: Boolean*/) = with(entity) {
+
+////                    val default = getChunkId(i)
+//                    entity.color[i] = if (bool) {
+////                        println("lol")
+//                        Color.rgba8888(Color.OLIVE)
+//                    } else Color.rgba8888(Color.MAGENTA)
+
+        val oldX = x[i].toInt()
+        val oldY = y[i].toInt()
+        vx[i] -= 0.01f// * cos( simEntity.timeSimulation + i.toFloat())
+//        vy[i] = 0.5f * sin( simEntity.timeSimulation + i.toFloat())
         processCellFrictionOld(i)
+        if (vx[i] > 0.5f) vx[i] = 0.5f else if (vx[i] < -0.5f) vx[i] = -0.5f
+        if (vy[i] > 0.5f) vy[i] = 0.5f else if (vy[i] < -0.5f) vy[i] = -0.5f
+
         x[i] += vx[i]
-        y[i] += if (abs(vy[i]) > HALF_CHUNK_HEIGHT) {
+        y[i] += vy[i]/*if (abs(vy[i]) > HALF_CHUNK_HEIGHT) {
             if (vy[i] < 0) -HALF_CHUNK_HEIGHT else HALF_CHUNK_HEIGHT
-        } else vy[i]
+        } else vy[i]*/
+
         processWorldBorders(i)
-        val newX = (x[i] / GridManager.Companion.CELL_SIZE).toInt()
-        val newY = (y[i] / GridManager.Companion.CELL_SIZE).toInt()
+        val newX = x[i].toInt()
+        val newY = y[i].toInt()
         if (newX != oldX || newY != oldY) {
             gridManager.removeCell(oldX, oldY, i)
             gridId[i] = gridManager.addCell(newX, newY, i)
@@ -340,7 +362,7 @@ class PhysicsSystem(
 */
 
     companion object {
-        const val PARTICLE_MAX_RADIUS = 20f
+        const val PARTICLE_MAX_RADIUS = 0.5f
         const val MAX_RADIUS_SQUARED = 1600
     }
 }

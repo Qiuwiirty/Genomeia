@@ -42,7 +42,7 @@ object DIContainer {
     )
     val simEntity = SimEntity()
     val particleEntity = ParticleEntity(
-        particlesStartMaxAmount = 12_000,
+        particlesStartMaxAmount = 120_000,
         gridManager = gridManager
     )
     val cellEntity = CellEntity(
@@ -71,7 +71,8 @@ object DIContainer {
         entity = particleEntity,
         gridManager = gridManager,
         substrateSettings = substrateSettings,
-        commandsManager = commandsManager
+        commandsManager = commandsManager,
+        simEntity = simEntity
     )
     val threadManager = ThreadManager(
         simEntity = simEntity
