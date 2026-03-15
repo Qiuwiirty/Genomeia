@@ -6,7 +6,6 @@ import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.scenes.scene2d.Event
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.VisCheckBox
@@ -18,8 +17,6 @@ import com.kotcrab.vis.ui.widget.VisTextButton
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.I18NBundle
 import io.github.some_example_name.old.core.FileProvider
-import io.github.some_example_name.old.systems.physics.GridManager.Companion.CELL_SIZE
-import io.github.some_example_name.old.systems.physics.WorldSize
 
 class SettingsScreen(
     val game: MyGame,

@@ -5,7 +5,6 @@ import io.github.some_example_name.old.systems.simulation.SimulationSystem
 import io.github.some_example_name.old.systems.physics.GridManager
 import io.github.some_example_name.old.systems.genomics.genomic_transformations.divideCell
 import io.github.some_example_name.old.systems.genomics.genomic_transformations.mutateCell
-import io.github.some_example_name.old.systems.physics.GridManager.Companion.CELL_SIZE
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.iterator

@@ -1,9 +1,7 @@
 package io.github.some_example_name.old.entities
 
 import io.github.some_example_name.old.systems.physics.GridManager
-import io.github.some_example_name.old.systems.physics.GridManager.Companion.CELL_SIZE
 import io.github.some_example_name.old.systems.physics.PhysicsSystem.Companion.PARTICLE_MAX_RADIUS
-import io.github.some_example_name.old.systems.simulation.ThreadManager.Companion.getThreadId
 import it.unimi.dsi.fastutil.ints.IntArrayList
 import java.util.BitSet
 import kotlin.collections.fill
@@ -41,20 +39,16 @@ class ParticleEntity(
         color: Int,
         vx: Float = 0f,
         vy: Float = 0f,
-        dragCoefficient: Float = 0.01f,
+        dragCoefficient: Float = 0.03f,
         effectOnContact: Boolean = false,
-        cellStiffness: Float = 0.22f
+        cellStiffness: Float = 0.02f
     ) {
         val index =
             if (deadParticlesStackAmount >= 0) deadParticlesStack[deadParticlesStackAmount--]
             else ++particleLastId
         isAliveParticle[index] = true
 
-        gridId[index] = gridManager.addCell(
-            x.toInt(),
-            y.toInt(),
-            index
-        )
+        gridId[index] = gridManager.addParticle(x.toInt(), y.toInt(), index)
 
         this.x[index] = x
         this.y[index] = y

@@ -116,9 +116,9 @@ class SimulationScreen(
 
         renderSystem.create()
 
-        camera.rotate(-90f)
-        camera.zoom = 0.2f
-        camera.translate(-192f, -192f)
+//        camera.rotate(-90f)
+        camera.zoom = 0.08f
+        camera.translate(-430f, -430f)
         camera.update()
     }
 

@@ -1,14 +1,12 @@
 package io.github.some_example_name.old.core
 
-
-import io.github.some_example_name.old.systems.physics.GridManager.Companion.WORLD_SIZE_TYPE
 import kotlin.random.Random
 
 var randomWallSeed = Random(12)
 
 class WorldGenerator {
     companion object {
-        var GENERATOR_WORLD_SIZE = WORLD_SIZE_TYPE.generateWorldSize
+        var GENERATOR_WORLD_SIZE = 1024
         var GENERATOR_DAY_NIGHT = 15
         var GENERATOR_INTERPOLATE = 12
     }

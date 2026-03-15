@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.MathUtils
 import io.github.some_example_name.old.commands.CommandsManager
 import io.github.some_example_name.old.commands.PlayerCommand
 import io.github.some_example_name.old.commands.WorldCommandType
+import io.github.some_example_name.old.core.DIContainer.threadCount
 import io.github.some_example_name.old.core.SubstrateSettings
 import io.github.some_example_name.old.entities.CellEntity
 import io.github.some_example_name.old.entities.LinkEntity
@@ -16,7 +17,6 @@ import io.github.some_example_name.old.entities.SubstancesEntity
 import io.github.some_example_name.old.systems.genomics.OrganManager
 import io.github.some_example_name.old.systems.genomics.genome.GenomeManager
 import io.github.some_example_name.old.systems.physics.GridManager
-import io.github.some_example_name.old.systems.physics.GridManager.Companion.WORLD_SIZE_TYPE
 import io.github.some_example_name.old.systems.physics.PhysicsSystem
 import io.github.some_example_name.old.systems.render.TripleBufferManager
 import kotlin.inc
@@ -24,7 +24,7 @@ import kotlin.math.sqrt
 import kotlin.random.Random
 
 class SimulationSystem(
-    val gridManager: GridManager = GridManager(),
+    val gridManager: GridManager,
     val commandsManager: CommandsManager,
     val organManager: OrganManager,
     val organEntity: OrganEntity,
@@ -61,16 +61,15 @@ class SimulationSystem(
         simEntity.tickCounter++
         simEntity.timeSimulation += DELTA_SIM_TICK_TIME
 
+        executingCommandsFromTheWorld()
         processParticleCollision()
         //TODO Process link physics
         //TODO Process cell
         //TODO Process substance
+
         arrangementOfPositionsInTheGrid()
-
         tripleBufferManager.updateAndCommitProducer()
-
         organManager.performOrgansNextStage()
-        executingCommandsFromTheWorld()
         processingCommandsFromUser()
     }
 
@@ -84,20 +83,20 @@ class SimulationSystem(
     }
 
     fun arrangementOfPositionsInTheGrid() {
-        for (chunk in 0..<ThreadManager.Companion.THREAD_COUNT) {
+        for (chunk in 0..<threadCount) {
             threadManager.futures.add(threadManager.executor.submit {
                 for (i in 0..<commandsManager.oddCounter[chunk]) {
-                    physicsSystem.moveParticle(commandsManager.oddChunkPositionStack[chunk][i], chunk)
+                    physicsSystem.moveParticle(commandsManager.oddChunkPositionStack[chunk][i])
                 }
             })
         }
         threadManager.futures.forEach { it.get() }
         threadManager.futures.clear()
 
-        for (chunk in 0..<ThreadManager.Companion.THREAD_COUNT) {
+        for (chunk in 0..<threadCount) {
             threadManager.futures.add(threadManager.executor.submit {
                 for (i in 0..<commandsManager.evenCounter[chunk]) {
-                    physicsSystem.moveParticle(commandsManager.evenChunkPositionStack[chunk][i], chunk)
+                    physicsSystem.moveParticle(commandsManager.evenChunkPositionStack[chunk][i])
                 }
             })
         }
@@ -124,7 +123,7 @@ class SimulationSystem(
                         val x = floats[0]
                         val y = floats[1]
 //                        val color = ints[0]
-                        if (x > 0 && x < WORLD_SIZE_TYPE.size && y > 0 && y < WORLD_SIZE_TYPE.size) {
+                        if (x > 0 && x < gridManager.gridWidth && y > 0 && y < gridManager.gridHeight) {
                             val radius = floats[2]
 
                             val r = 128 + Random.nextInt(128)
@@ -163,9 +162,9 @@ class SimulationSystem(
 //                            ints = intArrayOf(Color.rgba8888(Color.FOREST))
 //                        )
 //                    }
-                    val radius = 20f
+                    val radius = 400f
 
-                    repeat(1_000) {
+                    repeat(10_000) {
                         val angle = MathUtils.random(0f, MathUtils.PI2)
 
                         // больше частиц ближе к центру

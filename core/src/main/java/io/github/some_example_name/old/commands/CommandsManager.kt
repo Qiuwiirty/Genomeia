@@ -1,24 +1,22 @@
 package io.github.some_example_name.old.commands
 
+import io.github.some_example_name.old.core.DIContainer.threadCount
 import io.github.some_example_name.old.systems.genomics.genome.Action
-import io.github.some_example_name.old.systems.simulation.ThreadManager.Companion.THREAD_COUNT
 
 /*
 * Команды которые поступают от Мира и Игрока, выполняются только в updateAfterCycle
 * Commands that come from the World and the Player are executed only in updateAfterCycle
 * */
-class CommandsManager(
-    threadCount: Int = THREAD_COUNT
-) {
+class CommandsManager() {
 
 
     val userCommandBuffer = UserCommandBuffer()
-    val worldCommandBuffer = Array(THREAD_COUNT) { WorldCommandBuffer() }
+    val worldCommandBuffer = Array(threadCount) { WorldCommandBuffer() }
 
     //A buffer for updating cell positions — maybe I’ll be able to come up with something better
     //TODO resize
-    val evenChunkPositionStack = Array(THREAD_COUNT) { IntArray(30_000) }
-    val oddChunkPositionStack = Array(THREAD_COUNT) { IntArray(30_000) }
+    val evenChunkPositionStack = Array(threadCount) { IntArray(30_000) }
+    val oddChunkPositionStack = Array(threadCount) { IntArray(30_000) }
 
     val evenCounter = IntArray(threadCount)
     val oddCounter = IntArray(threadCount)
@@ -37,7 +35,6 @@ class CommandsManager(
 
     val addCells = Array(threadCount) { mutableListOf<AddCell>() }
     val addLinks = Array(threadCount) { mutableListOf<AddLink>() }
-//    val addSubstances = Array(threadCount) { mutableListOf<SubstanceAdd>() }
 
     val addOrganisms = Array(threadCount) { mutableListOf<Organism>() }
 
@@ -63,8 +60,7 @@ class AddLink(
     val degreeOfShortening: Float,
     val isStickyLink: Boolean,
     val isNeuronLink: Boolean,
-    val isLink1NeuralDirected: Boolean,
-//    val directedNeuronLink: Int
+    val isLink1NeuralDirected: Boolean
 )
 
 //TODO 100% Implement it using a structure of arrays

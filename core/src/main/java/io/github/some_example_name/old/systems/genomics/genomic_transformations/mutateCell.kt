@@ -1,6 +1,5 @@
 package io.github.some_example_name.old.systems.genomics.genomic_transformations
 
-import io.github.some_example_name.old.systems.physics.GridManager.Companion.CELL_SIZE
 import kotlin.collections.forEach
 import kotlin.collections.get
 import kotlin.collections.set

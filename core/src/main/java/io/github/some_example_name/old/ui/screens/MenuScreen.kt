@@ -48,11 +48,15 @@ class MenuScreen(
         table.add(emptyButton).fillX().height(30f * density).row()
         emptyButton.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent, x: Float, y: Float) {
-                game.screen = WorldEditorScreen(
-                    multiPlatformFileProvider = multiPlatformFileProvider,
-                    game = game,
-                    bundle = bundle
-                )
+                val oldScreen = game.screen
+                game.screen =
+                    SimulationScreen(multiPlatformFileProvider, game, null, bundle, null) // Передаем map
+                oldScreen.dispose()
+//                game.screen = WorldEditorScreen(
+//                    multiPlatformFileProvider = multiPlatformFileProvider,
+//                    game = game,
+//                    bundle = bundle
+//                )
             }
         })
 

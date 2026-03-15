@@ -27,6 +27,21 @@ import java.util.Locale
 import kotlin.getValue
 
 object DIContainer {
+
+    var gridWith = 3440
+    var gridHeight = 1440
+    var halfChunkHeight = 4 // Also max particle speed
+    var chunkHeight = halfChunkHeight * 2
+    var gridSize = gridWith * gridHeight
+    var threadCount = (gridHeight / chunkHeight) / 2
+    var totalChunks = threadCount * 2
+    var chunkSize = gridSize / totalChunks
+
+    init {
+        val heightMultiplier = chunkHeight * 2
+        if (gridHeight % heightMultiplier != 0) throw Exception("gridHeight should be a multiple of (halfChunkHeight * 2 * 2)")
+    }
+
     val json by lazy { Json() }
     val bundle: I18NBundle by lazy {
         I18NBundle.createBundle(
@@ -35,7 +50,10 @@ object DIContainer {
         )
     }
 
-    val gridManager = GridManager()
+    val gridManager = GridManager(
+        gridWidth = gridWith,
+        gridHeight = gridHeight
+    )
     val commandsManager = CommandsManager()
     val organEntity = OrganEntity(
         organStartMaxAmount = 400
@@ -53,7 +71,9 @@ object DIContainer {
     val linkEntity = LinkEntity(
         20_000
     )
-    val pheromoneEntity = PheromoneEntity()
+    val pheromoneEntity = PheromoneEntity(
+        gridManager = gridManager
+    )
     val substancesEntity = SubstancesEntity()
     val genomeJsonReader = GenomeJsonReader()
     val genomeManager = GenomeManager(

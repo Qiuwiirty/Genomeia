@@ -29,7 +29,6 @@ import io.github.some_example_name.old.core.WorldGenerator.Companion.GENERATOR_D
 import io.github.some_example_name.old.core.WorldGenerator.Companion.GENERATOR_INTERPOLATE
 import io.github.some_example_name.old.core.FileProvider
 import io.github.some_example_name.old.core.utils.brownColors
-import io.github.some_example_name.old.systems.physics.GridManager.Companion.WORLD_SIZE_TYPE
 import io.github.some_example_name.old.ui.dialogs.setupTitleSize
 
 class WorldEditorScreen(
@@ -78,7 +77,7 @@ class WorldEditorScreen(
             field = value
             updateSeedText()
         }
-    private var worldSize = WORLD_SIZE_TYPE.generateWorldSize
+    private var worldSize = 1024//WORLD_SIZE_TYPE.generateWorldSize
     private var worldLifeGame = GENERATOR_DAY_NIGHT
     private var worldSmoothing = GENERATOR_INTERPOLATE
     private lateinit var seedLabel: VisLabel

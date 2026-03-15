@@ -11,7 +11,7 @@ class GenomeEditorManager(
 //    val growthProcessor = GenomeEditorGrowthProcessor(genomeName)
     var stages = IntArray(0)
     var stageByTick = StageTimelineBinarySearch(stages)
-    var gridManager: GridManager = GridManager()
+    var gridManager: GridManager = GridManager(128, 128)
     var replay: List<GenomeStageReplayStructure> = emptyList()
     val linksPairId = UnorderedIntPairMap(10_000)
 
@@ -53,7 +53,8 @@ class GenomeEditorManager(
         // Adding all replay cells to a grid cell
         gridManager.clearAll()
         editorCells.forEach {
-            gridManager.addCell(it.gridId, it.index)
+            TODO()
+//            gridManager.addCell(it.gridId, it.index)
         }
     }
 

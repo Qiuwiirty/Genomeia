@@ -8,7 +8,6 @@ import io.github.some_example_name.old.genome_editor.EditorCell
 import io.github.some_example_name.old.genome_editor.GenomeEditorManager
 import io.github.some_example_name.old.core.utils.distanceTo
 import io.github.some_example_name.old.systems.physics.GridManager
-import io.github.some_example_name.old.systems.physics.GridManager.Companion.CELL_SIZE
 import kotlin.math.atan2
 import kotlin.math.sqrt
 
@@ -33,7 +32,7 @@ fun getAllCloseNeighboursEditor(
             grabbedY,
             editorCells[it].x,
             editorCells[it].y
-        ) <= CELL_SIZE
+        ) <= 1f//CELL_SIZE TODO
     }
 
     return if (grabbedCellIndex != null) filteredByDistance.filterNot { it == grabbedCellIndex } else filteredByDistance
