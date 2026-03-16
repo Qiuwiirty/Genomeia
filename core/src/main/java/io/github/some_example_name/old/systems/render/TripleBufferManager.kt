@@ -10,20 +10,53 @@ class TripleBufferManager(
 ) {
 
     companion object {
-        const val PARTICLE_MAX_AMOUNT = 2_500_000
-        const val BUFFER_SIZE_BYTES = PARTICLE_MAX_AMOUNT * 16
+        const val INITIAL_CAPACITY = 50_000          // стартовый размер (в частицах)
+        // Максимум убираем — буфер теперь полностью динамический.
+        // При необходимости можно добавить позже.
     }
 
-    private val bufferA: ByteBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE_BYTES).order(ByteOrder.nativeOrder())
-    private val bufferB: ByteBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE_BYTES).order(ByteOrder.nativeOrder())
-    // bufferC больше не нужен — достаточно двойного буфера на CPU
+    // Два буфера, но теперь они могут «перерождаться» в больший размер
+    private var bufferA: ByteBuffer = allocateBuffer(INITIAL_CAPACITY)
+    private var bufferB: ByteBuffer = allocateBuffer(INITIAL_CAPACITY)
 
     private val latestBuffer = AtomicReference(bufferA)   // буфер, который видит рендер
     private var writeBuffer: ByteBuffer = bufferB         // куда пишет симуляция
 
     private var lastReturnedBuffer: ByteBuffer? = null    // для правильного isNewFrame (только в render thread)
 
+    /**
+     * Создаёт прямой ByteBuffer нужного размера (16 байт на частицу).
+     */
+    private fun allocateBuffer(numParticles: Int): ByteBuffer {
+        return ByteBuffer.allocateDirect(numParticles * 16).order(ByteOrder.nativeOrder())
+    }
+
+    /**
+     * Увеличивает writeBuffer, если текущей ёмкости не хватает.
+     * Рост — ×1.2 каждый раз, пока не хватит (экспоненциальный рост при резком увеличении частиц).
+     */
+    private fun ensureCapacityForWrite(neededParticles: Int) {
+        val currentCapacity = writeBuffer.capacity() / 16
+        if (neededParticles <= currentCapacity) return
+
+        // Вычисляем новый размер с ростом 1.2×
+        var newCapacity = currentCapacity.toDouble()
+        do {
+            newCapacity *= 1.5
+        } while (newCapacity < neededParticles)
+
+        val finalCapacity = newCapacity.toInt().coerceAtLeast(neededParticles)
+
+        // Заменяем writeBuffer на новый больший буфер
+        writeBuffer = allocateBuffer(finalCapacity)
+    }
+
     private fun putBufferData() {
+        val needed = particleEntity.particleLastId + 1
+
+        // ← Здесь происходит вся динамика размера
+        ensureCapacityForWrite(needed)
+
         writeBuffer.clear()
         with(particleEntity) {
             for (i in 0..particleLastId) {
@@ -36,7 +69,6 @@ class TripleBufferManager(
         writeBuffer.flip()
     }
 
-    // Вызывается ТОЛЬКО когда симуляция сделала шаг (как do_sync в твоём C++)
     fun updateAndCommitProducer() {
         putBufferData()
 

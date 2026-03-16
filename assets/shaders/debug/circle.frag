@@ -9,23 +9,21 @@ out vec4 fragColor;
 void main() {
 
     float dist = length(v_texCoord - vec2(0.5));
-    float r = dist / 0.5;
+    if (dist > 0.5) discard;
 
-    // ширина пикселя в экранном пространстве
-    float aa = fwidth(dist);
-
-    // сглаженный край круга
-    float circle = 1.0 - smoothstep(0.5 - aa, 0.5 + aa, dist);
+    float r = dist / 0.5; // нормализованный радиус 0..1
 
     float shade = 1.0;
 
-    // центр
-    float center = smoothstep(0.2 - aa, 0.2 + aa, r);
-    shade *= mix(0.6, 1.0, center);
+    // затемнение центра (20%)
+    if (r < 0.2) {
+        shade = 0.6; // -40%
+    }
 
-    // край
-    float edge = smoothstep(0.8 - aa, 0.8 + aa, r);
-    shade *= mix(1.0, 0.7, edge);
+    // затемнение края (20%)
+    if (r > 0.8) {
+        shade = 0.7; // -30%
+    }
 
-    fragColor = vec4(v_color.rgb * shade, v_color.a * circle);
+    fragColor = vec4(v_color.rgb * shade, 1.0/*v_color.a*/);
 }

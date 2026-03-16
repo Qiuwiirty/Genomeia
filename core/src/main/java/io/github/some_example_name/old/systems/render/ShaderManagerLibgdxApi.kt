@@ -19,38 +19,43 @@ interface ShaderManager {
 }
 
 class ShaderManagerLibgdxApi : ShaderManager {
-    // Три SSBO IDs для тройного буфера на GPU (ротация для избежания stalls)
+    // Три SSBO с динамическим размером (растут ×1.2, как на CPU)
     private val ssboIds = IntArray(3)
-    private var currentSsboIndex = 0  // Для ротации SSBO
+    private val ssboCapacities = IntArray(3)
+    private var currentSsboIndex = 0
     private var activeSsboId = 0
+
+    // Начальный размер берём из TripleBufferManager (теперь он динамический)
+    private val INITIAL_BUFFER_BYTES = TripleBufferManager.INITIAL_CAPACITY * 16
 
     private lateinit var shader: ShaderProgram
     private lateinit var mesh: Mesh
 
     override fun create() {
-        // Создание трёх SSBO с использованием Gdx.gl31
+        // Создаём три SSBO с маленьким начальным размером
         val ssboBuffer: IntBuffer = BufferUtils.newIntBuffer(3)
         Gdx.gl31.glGenBuffers(3, ssboBuffer)
+
         for (i in 0 until 3) {
             ssboIds[i] = ssboBuffer.get(i)
+            ssboCapacities[i] = INITIAL_BUFFER_BYTES
+
             Gdx.gl31.glBindBuffer(GL31.GL_SHADER_STORAGE_BUFFER, ssboIds[i])
             Gdx.gl31.glBufferData(
                 GL31.GL_SHADER_STORAGE_BUFFER,
-                TripleBufferManager.BUFFER_SIZE_BYTES,
+                INITIAL_BUFFER_BYTES,
                 null,
                 GL20.GL_DYNAMIC_DRAW
             )
-            // Нет необходимости в glBindBufferBase здесь, так как binding динамический в render
         }
         Gdx.gl31.glBindBuffer(GL31.GL_SHADER_STORAGE_BUFFER, 0)
 
-        activeSsboId = ssboIds[0]           // начальный
+        activeSsboId = ssboIds[0]
         currentSsboIndex = 0
 
         val vertexShader = Gdx.files.internal("shaders/debug/circle.vert").readString()
         val fragmentShader = Gdx.files.internal("shaders/debug/circle.frag").readString()
         shader = ShaderProgram(vertexShader, fragmentShader)
-        println("lol kek")
         if (!shader.isCompiled) {
             throw RuntimeException("Shader compilation failed: ${shader.log}")
         }
@@ -75,18 +80,41 @@ class ShaderManagerLibgdxApi : ShaderManager {
         val numInstances = dataSize / 16
         if (numInstances == 0) return
 
-        // ←←← ТОЛЬКО ПРИ НОВОМ КАДРЕ: ротация + загрузка
+        // ←←← ТОЛЬКО ПРИ НОВОМ КАДРЕ: ротация + resize (если нужно) + загрузка
         if (isNewFrame) {
             currentSsboIndex = (currentSsboIndex + 1) % 3
-            val ssboId = ssboIds[currentSsboIndex]
+            val targetIndex = currentSsboIndex
+            val ssboId = ssboIds[targetIndex]
             activeSsboId = ssboId
 
+            // Динамическое увеличение SSBO (точно как в TripleBufferManager)
+            if (dataSize > ssboCapacities[targetIndex]) {
+                var newCapacity = ssboCapacities[targetIndex].toDouble()
+                do {
+                    newCapacity *= 1.2
+                } while (newCapacity < dataSize)
+
+                val finalCapacity = newCapacity.toInt().coerceAtLeast(dataSize)
+
+                Gdx.gl31.glBindBuffer(GL31.GL_SHADER_STORAGE_BUFFER, ssboId)
+                Gdx.gl31.glBufferData(
+                    GL31.GL_SHADER_STORAGE_BUFFER,
+                    finalCapacity,
+                    null,
+                    GL20.GL_DYNAMIC_DRAW
+                )
+                Gdx.gl31.glBindBuffer(GL31.GL_SHADER_STORAGE_BUFFER, 0)
+
+                ssboCapacities[targetIndex] = finalCapacity
+            }
+
+            // Загружаем данные
             Gdx.gl31.glBindBuffer(GL31.GL_SHADER_STORAGE_BUFFER, ssboId)
             Gdx.gl31.glBufferSubData(GL31.GL_SHADER_STORAGE_BUFFER, 0, dataSize, currentRead)
             Gdx.gl31.glBindBuffer(GL31.GL_SHADER_STORAGE_BUFFER, 0)
         }
 
-        // Всегда рисуем текущий активный SSBO (при паузе — тот же самый!)
+        // Всегда рисуем текущий активный SSBO
         Gdx.gl.glEnable(GL20.GL_BLEND)
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
 

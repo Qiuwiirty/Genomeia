@@ -44,7 +44,6 @@ class RenderSystem(
             Gdx.graphics.height.toFloat()
         )
         spriteBatch.projectionMatrix = uiProjection
-//        font.data.setScale(Gdx.graphics.density * 2f)
 
         spriteBatch.begin()
         font.draw(

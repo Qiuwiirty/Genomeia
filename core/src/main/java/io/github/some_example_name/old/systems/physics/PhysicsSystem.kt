@@ -13,8 +13,7 @@ class PhysicsSystem(
     val gridManager: GridManager,
     val substrateSettings: SubstrateSettings,
     val commandsManager: CommandsManager,
-    val simEntity: SimEntity,
-//    val halfChunkHeight: Int
+    val simEntity: SimEntity
 ) {
 
     val halfChunkHeight2 = halfChunkHeight * halfChunkHeight
@@ -50,8 +49,6 @@ class PhysicsSystem(
     }
 
     private fun processNeighborsCellsCollision(cellId: Int, gridX: Int, gridY: Int, threadId: Int) {
-        //TODO Это можно превратить в 2 цикла, через два горизонтальных среза
-        //TODO This can be turned into 2 cycles, through two horizontal slices
         gridManager.getParticles(gridX - 1, gridY + 1).also { ids ->
             for (id in ids) repulse(cellId, id, false, threadId)
         }
