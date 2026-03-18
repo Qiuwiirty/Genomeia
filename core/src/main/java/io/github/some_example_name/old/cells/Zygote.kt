@@ -13,7 +13,7 @@ class Zygote: Cell(
 //        if (!cm.isGenomeEditor) {
 //            cm.cellGenomeId[id] = 0
 //        }
-            organismIndex[index] = organEntity.organLastId + 1
+            organIndex[index] = organEntity.lastId + 1
             val currentGenome = genomeManager.genomes[parentGenomeIndex]
 
             val newOrganism = Organism(

@@ -11,7 +11,3 @@ class CellBuilder {
     }.sortedBy { it.cellTypeId }
 
 }
-
-fun main() {
-
-}

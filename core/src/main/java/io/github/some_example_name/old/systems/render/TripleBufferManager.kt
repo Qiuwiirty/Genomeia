@@ -52,14 +52,14 @@ class TripleBufferManager(
     }
 
     private fun putBufferData() {
-        val needed = particleEntity.particleLastId + 1
+        val needed = particleEntity.lastId + 1
 
         // ← Здесь происходит вся динамика размера
         ensureCapacityForWrite(needed)
 
         writeBuffer.clear()
         with(particleEntity) {
-            for (i in 0..particleLastId) {
+            for (i in 0..lastId) {
                 writeBuffer.putFloat(x[i])
                 writeBuffer.putFloat(y[i])
                 writeBuffer.putFloat(radius[i])

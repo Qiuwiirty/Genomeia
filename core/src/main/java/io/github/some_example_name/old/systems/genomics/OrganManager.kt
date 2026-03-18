@@ -1,11 +1,13 @@
 package io.github.some_example_name.old.systems.genomics
 
+import io.github.some_example_name.old.entities.CellEntity
 import io.github.some_example_name.old.entities.OrganEntity
 import io.github.some_example_name.old.systems.genomics.genome.GenomeManager
 
 class OrganManager(
     private val organEntity: OrganEntity,
-    private val genomeManager: GenomeManager
+    private val genomeManager: GenomeManager,
+    private val cellEntity: CellEntity
 ) {
 
     /*
@@ -14,7 +16,7 @@ class OrganManager(
     * */
     fun performOrgansNextStage(): Boolean? {
         with(organEntity) {
-            for (index in 0..organEntity.organLastId) {
+            for (index in 0..organEntity.lastId) {
                 if (alreadyGrownUp[index]) return null
                 justChangedStage[index] = false
                 if (dividedTimes[index] == divideAmountThisStage[index] - divideCounterThisStage[index]
@@ -41,6 +43,19 @@ class OrganManager(
             }
         }
         return false
+    }
+
+    fun cellDeleted(cellIndex: Int) {
+        val organIndex = cellEntity.organIndex[cellIndex]
+        if (organIndex != -1) {
+            if (!cellEntity.isDividedInThisStage[cellIndex]) {
+                organEntity.divideCounterThisStage[organIndex]--
+            }
+
+            if (!cellEntity.isMutateInThisStage[cellIndex]) {
+                organEntity.mutateCounterThisStage[organIndex]--
+            }
+        }
     }
 
     fun clear() {

@@ -1,20 +1,22 @@
 package io.github.some_example_name.old.entities
 
-class SubstancesEntity: Entity {
-    //TODO
-    override fun copy() {
+class SubstancesEntity(
+    startMaxAmount: Int = 5_000
+): Entity(startMaxAmount) {
+    override fun onCopy() {
         TODO("Not yet implemented")
     }
 
-    override fun paste() {
+    override fun onPaste() {
         TODO("Not yet implemented")
     }
 
-    override fun clear() {
+    override fun onClear(bound: Int) {
         TODO("Not yet implemented")
     }
 
-    override fun resize() {
+    override fun onResize(oldMax: Int) {
         TODO("Not yet implemented")
     }
+
 }

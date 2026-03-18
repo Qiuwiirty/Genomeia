@@ -13,10 +13,9 @@ import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.kotcrab.vis.ui.widget.VisLabel
 import io.github.some_example_name.old.core.DIContainer
-import io.github.some_example_name.old.systems.genomics.genome.json.GenomeJsonReader
+import io.github.some_example_name.old.systems.genomics.genome.GenomeJsonReader
 import io.github.some_example_name.old.ui.dialogs.GenomeListDialog
 import io.github.some_example_name.old.core.FileProvider
-import io.github.some_example_name.old.good_one.ComputeTestScreen
 
 class MenuScreen(
     private val game: MyGame,

@@ -5,7 +5,8 @@ import io.github.some_example_name.old.core.utils.blueColors
 
 class PheromoneSensor : Cell(
     defaultColor = blueColors[2],
-    cellTypeId = 23
+    cellTypeId = 23,
+    isNeural = true
 ) {
 
     override fun doOnTick(index: Int, threadId: Int) = with(cellEntity) {
@@ -18,12 +19,12 @@ class PheromoneSensor : Cell(
         val g = 0
         val b = 0
 
-        val impulse =
-            r * pheromoneEntity.pheromoneR[gridId] +
-            g * pheromoneEntity.pheromoneG[gridId] +
-            b * pheromoneEntity.pheromoneB[gridId]
+        val impulse = 0f
+//            r * pheromoneEntity.pheromoneR[gridId] +
+//            g * pheromoneEntity.pheromoneG[gridId] +
+//            b * pheromoneEntity.pheromoneB[gridId]
 
-        neuronImpulseOutput[index] = activation(cellEntity, index, impulse)
+        setNeuronImpulseOutput(index, activation(index, impulse))
 
         energy[index] -= 0.0001f
     }

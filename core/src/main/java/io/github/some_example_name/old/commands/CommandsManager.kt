@@ -7,6 +7,7 @@ import io.github.some_example_name.old.systems.genomics.genome.Action
 * Команды которые поступают от Мира и Игрока, выполняются только в updateAfterCycle
 * Commands that come from the World and the Player are executed only in updateAfterCycle
 * */
+//TODO resize
 class CommandsManager() {
 
 
@@ -14,7 +15,6 @@ class CommandsManager() {
     val worldCommandBuffer = Array(threadCount) { WorldCommandBuffer() }
 
     //A buffer for updating cell positions — maybe I’ll be able to come up with something better
-    //TODO resize
     val evenChunkPositionStack = Array(threadCount) { IntArray(30_000) }
     val oddChunkPositionStack = Array(threadCount) { IntArray(30_000) }
 

@@ -4,8 +4,6 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.utils.Json
 import com.badlogic.gdx.utils.JsonWriter
 import io.github.some_example_name.old.entities.SimEntity
-import io.github.some_example_name.old.systems.genomics.genome.json.GenomeJsonReader
-import io.github.some_example_name.old.systems.genomics.genome.json.read.jsonToDomain
 
 
 class GenomeManager(

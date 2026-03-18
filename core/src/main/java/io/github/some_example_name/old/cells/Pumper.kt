@@ -9,7 +9,7 @@ class Pumper: Cell(
 
     override fun onContact(index: Int, indexCollided: Int, threadId: Int) = with(cellEntity) {
         val rateOfEnergy = substrateSettings.data.rateOfEnergyTransferForPumper
-        if (energy[index] < substrateSettings.cellsSettings[cellType[index] + 1].maxEnergy && energy[indexCollided] >= rateOfEnergy) {
+        if (energy[index] < substrateSettings.cellsSettings[cellType[index].toInt()].maxEnergy && energy[indexCollided] >= rateOfEnergy) {
             energy[index] += rateOfEnergy
             energy[indexCollided] -= rateOfEnergy
         }

@@ -4,5 +4,5 @@ import io.github.some_example_name.old.core.utils.whiteColors
 
 class Bone: Cell(
     defaultColor = whiteColors.first(),
-    cellTypeId = 0
+    cellTypeId = 2
 )

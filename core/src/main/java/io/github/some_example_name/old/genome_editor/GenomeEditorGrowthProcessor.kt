@@ -3,8 +3,8 @@ package io.github.some_example_name.old.genome_editor
 import io.github.some_example_name.old.systems.genomics.genome.Genome
 import io.github.some_example_name.old.systems.simulation.SimulationSystem
 import io.github.some_example_name.old.systems.physics.GridManager
-import io.github.some_example_name.old.systems.genomics.genomic_transformations.divideCell
-import io.github.some_example_name.old.systems.genomics.genomic_transformations.mutateCell
+//import io.github.some_example_name.old.systems.genomics.genomic_transformations.divideCell
+//import io.github.some_example_name.old.systems.genomics.genomic_transformations.mutateCell
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.iterator
@@ -211,7 +211,7 @@ class GenomeEditorGrowthProcessor(genomeName: String?) {
 //        vx[cellId] *= 0f
 //        vy[cellId] *= 0f
         energy[cellIndex] += 1.5f
-        if (energy[cellIndex] > cellsSettings[cellType[cellIndex] + 1].maxEnergy) energy[cellIndex] = cellsSettings[cellType[cellIndex] + 1].maxEnergy
+        if (energy[cellIndex] > cellsSettings[cellType[cellIndex]].maxEnergy) energy[cellIndex] = cellsSettings[cellType[cellIndex]].maxEnergy
         val organism = organismManager.organisms[organismIndex[cellIndex]]
         if (!organism.alreadyGrownUp) {
             TODO("тут думать надо")

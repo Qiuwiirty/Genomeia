@@ -3,35 +3,35 @@ package io.github.some_example_name.old.cells
 import io.github.some_example_name.old.cells.base.activation
 import io.github.some_example_name.old.core.utils.genomeEditorColor
 import io.github.some_example_name.old.core.utils.invSqrt
-import io.github.some_example_name.old.systems.genomics.CellManager.Companion.MAX_LINK_AMOUNT
 
 class TouchTrigger: Cell(
     defaultColor = genomeEditorColor[6],
-    cellTypeId = 17
+    cellTypeId = 17,
+    isNeural = true
 ) {
 
     override fun doOnTick(index: Int, threadId: Int) = with(cellEntity) {
-        var sumStretchingDistance = 0f
-
-        for (i in 0..<cellEntity.linksAmount[index]) {
-            val linkId = links[index * MAX_LINK_AMOUNT + i]
-            val c1 = linkEntity.links1[linkId]
-            val c2 = linkEntity.links2[linkId]
-
-            val dx = getX(c1) - getX(c2)
-            val dy = getY(c1) - getY(c2)
-            val sqrt = dx * dx + dy * dy
-            if (sqrt <= 0) return
-            val dist = 1.0f / invSqrt(sqrt)
-
-            val stretchingDistance = linkEntity.linksNaturalLength[linkId] * linkEntity.degreeOfShortening[linkId] - dist
-            sumStretchingDistance += stretchingDistance
-        }
-
-        val impulse = (sumStretchingDistance / linksAmount[index]) / 80
-
-        neuronImpulseOutput[index] = activation(cellEntity, index, impulse)
-
-        energy[index] -= substrateSettings.cellsSettings[cellType[index] + 1].energyActionCost
+//        var sumStretchingDistance = 0f
+//
+//        for (i in 0..<cellEntity.linksAmount[index]) {
+//            val linkId = links[index * MAX_LINK_AMOUNT + i]
+//            val c1 = linkEntity.links1[linkId]
+//            val c2 = linkEntity.links2[linkId]
+//
+//            val dx = getX(c1) - getX(c2)
+//            val dy = getY(c1) - getY(c2)
+//            val sqrt = dx * dx + dy * dy
+//            if (sqrt <= 0) return
+//            val dist = 1.0f / invSqrt(sqrt)
+//
+//            val stretchingDistance = linkEntity.linksNaturalLength[linkId] * linkEntity.degreeOfShortening[linkId] - dist
+//            sumStretchingDistance += stretchingDistance
+//        }
+//
+//        val impulse = (sumStretchingDistance / linksAmount[index]) / 80
+//
+//        neuronImpulseOutput[index] = activation(cellEntity, index, impulse)
+//
+//        energy[index] -= substrateSettings.cellsSettings[cellType[index]].energyActionCost
     }
 }

@@ -38,11 +38,11 @@ class GridManager (
         return cellIndex
     }
 
-    fun removeParticle(x: Int, y: Int, value: Int): Boolean {
+    fun removeParticle(cellIndex: Int, value: Int): Boolean {
 //        if (x < 0 || x >= gridCellWidthSize || y < 0 || y >= gridCellHeightSize) {
 //            throw Exception("Out of grid bounds")
 //        }
-        val cellIndex = y * gridWidth + x
+//        val cellIndex = y * gridWidth + x
         val start = cellIndex * MAX_AMOUNT_OF_PARTICLES
         if (particleCounts[cellIndex] <= MAX_AMOUNT_OF_PARTICLES) {
             val end = start + particleCounts[cellIndex] - 1

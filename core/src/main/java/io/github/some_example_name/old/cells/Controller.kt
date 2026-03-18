@@ -5,7 +5,8 @@ import io.github.some_example_name.old.core.utils.skyBlueColors
 
 class Controller: Cell(
     defaultColor = skyBlueColors.last(),
-    cellTypeId = 16
+    cellTypeId = 16,
+    isNeural = true
 ) {
     //TODO PC: WASD ↑←↓→ 1234567890 (SPACE)
     //TODO smartphone: ↑←↓→ XYAB
@@ -14,10 +15,10 @@ class Controller: Cell(
         //TODO сделать назначение клавиш на пк и добавление кнопок на телефонах
         val keyIndex = simEntity.controllerIndexesLol[cellGenomeId[index]] ?: return
         if (keyIndex) {
-            neuronImpulseOutput[index] = activation(cellEntity, index, 1f)
+            setNeuronImpulseOutput(index, activation(index, 1f))
         } else {
-            neuronImpulseOutput[index] = 0f
+            setNeuronImpulseOutput(index, 0f)
         }
-        energy[index] -= substrateSettings.cellsSettings[cellType[index] + 1].energyActionCost
+        energy[index] -= substrateSettings.cellsSettings[cellType[index].toInt()].energyActionCost
     }
 }

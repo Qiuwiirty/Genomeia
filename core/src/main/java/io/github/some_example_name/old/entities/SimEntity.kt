@@ -2,7 +2,7 @@ package io.github.some_example_name.old.entities
 
 import java.util.TreeMap
 
-class SimEntity: Entity {
+class SimEntity {
     var isRestart = false
     var isFinish = false
     var tickCounter = 0
@@ -20,15 +20,15 @@ class SimEntity: Entity {
     //TODO подумать как сделать лучше
     val controllerIndexesLol = TreeMap<Int, Boolean>()
 
-    override fun copy() {
+    fun copy() {
         TODO("Not yet implemented")
     }
 
-    override fun paste() {
+    fun paste() {
         TODO("Not yet implemented")
     }
 
-    override fun clear() {
+    fun clear() {
         isRestart = false
         isFinish = false
         tickCounter = 0
@@ -36,7 +36,7 @@ class SimEntity: Entity {
         currentGenomeIndex = 0
     }
 
-    override fun resize() {
+    fun resize() {
 
     }
 }

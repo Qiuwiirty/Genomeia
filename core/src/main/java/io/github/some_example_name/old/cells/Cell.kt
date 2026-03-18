@@ -7,6 +7,7 @@ sealed class Cell(
     val defaultColor: Color,
     val cellTypeId: Int,
     val isDirected: Boolean = false,
+    val isNeural: Boolean = false,
     val maxEnergy: Float = 5f,
     val isNeuronTransportable: Boolean = true,
     val effectOnContact: Boolean = false,

@@ -8,7 +8,7 @@ class Leaf: Cell(
 ) {
 
     override fun doOnTick(index: Int, threadId: Int) = with (cellEntity) {
-        if (energy[index] < substrateSettings.cellsSettings[cellType[index] + 1].maxEnergy) {
+        if (energy[index] < substrateSettings.cellsSettings[cellType[index].toInt()].maxEnergy) {
             energy[index] += substrateSettings.data.amountOfSolarEnergy
         }
     }

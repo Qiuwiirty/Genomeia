@@ -11,7 +11,8 @@ import kotlin.math.sqrt
 class Vascular : Cell(
     defaultColor = yellowColors[3],
     cellTypeId = 21,
-    isDirected = true
+    isDirected = true,
+    isNeural = true
 ) {
 
     override fun doOnTick(index: Int, threadId: Int) {

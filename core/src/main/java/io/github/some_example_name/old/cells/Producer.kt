@@ -12,14 +12,15 @@ import kotlin.text.compareTo
 class Producer: Cell(
     defaultColor = redColors[4],
     cellTypeId = 19,
-    isDirected = true
+    isDirected = true,
+    isNeural = true
 ) {
 
     override fun doOnTick(index: Int, threadId: Int) = with(cellEntity) {
-        val impulse = neuronImpulseOutput[index]
+        val impulse = getNeuronImpulseOutput(index)
 
-        neuronImpulseOutput[index] = 0f
-        if(energy[index] < substrateSettings.cellsSettings[cellType[index] + 1].maxEnergy || impulse < 1) return
+        setNeuronImpulseOutput(index, 0f)
+        if(energy[index] < substrateSettings.cellsSettings[cellType[index].toInt()].maxEnergy || impulse < 1) return
 
         //TODO Make the impulse increase smoothly from 0 to 1, and have the producer divide at the moment when the impulse equals 1
 //        if (cm.tickRestriction[index] <= 0) {
@@ -55,7 +56,7 @@ class Producer: Cell(
 //                parentIndex = index
 //            )
 //        )
-        neuronImpulseOutput[index] = 1f
+        setNeuronImpulseOutput(index, 1f)
         energy[index] -= energy[index]
     }
 }

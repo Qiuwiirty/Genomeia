@@ -4,36 +4,33 @@ import java.util.BitSet
 
 class OrganEntity(
     organStartMaxAmount: Int
-): Entity {
+): Entity(organStartMaxAmount) {
 
-    private var organMaxAmount = organStartMaxAmount
-    var organLastId = -1
+    var genomeIndex = IntArray(maxAmount)
+    var genomeSize = IntArray(maxAmount)
+    var stage = IntArray(maxAmount)
+    var dividedTimes = IntArray(maxAmount)
+    var mutatedTimes = IntArray(maxAmount)
+    var alreadyGrownUp = BitSet(maxAmount)
+    var divideCounterThisStage = IntArray(maxAmount)//Для подсчета убитых клеток
+    var mutateCounterThisStage = IntArray(maxAmount)//Для подсчета убитых клеток
+    var divideAmountThisStage = IntArray(maxAmount)//Общее количество
+    var mutateAmountThisStage = IntArray(maxAmount)//Общее количество
+    var justChangedStage = BitSet(maxAmount)
 
-    var genomeIndex = IntArray(organMaxAmount)
-    var genomeSize = IntArray(organMaxAmount)
-    var stage = IntArray(organMaxAmount)
-    var dividedTimes = IntArray(organMaxAmount)
-    var mutatedTimes = IntArray(organMaxAmount)
-    var alreadyGrownUp = BitSet(organMaxAmount)
-    var divideCounterThisStage = IntArray(organMaxAmount)
-    var mutateCounterThisStage = IntArray(organMaxAmount)
-    var divideAmountThisStage = IntArray(organMaxAmount)
-    var mutateAmountThisStage = IntArray(organMaxAmount)
-    var justChangedStage = BitSet(organMaxAmount)
-
-    override fun copy() {
+    override fun onCopy() {
         TODO("Not yet implemented")
     }
 
-    override fun paste() {
+    override fun onPaste() {
         TODO("Not yet implemented")
     }
 
-    override fun clear() {
+    override fun onClear(bound: Int) {
         TODO("Not yet implemented")
     }
 
-    override fun resize() {
+    override fun onResize(oldMax: Int) {
         TODO("Not yet implemented")
     }
 }

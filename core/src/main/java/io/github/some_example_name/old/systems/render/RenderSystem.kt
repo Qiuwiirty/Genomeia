@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Matrix4
 import io.github.some_example_name.old.entities.CellEntity
 import io.github.some_example_name.old.entities.LinkEntity
+import io.github.some_example_name.old.entities.NeuralEntity
 import io.github.some_example_name.old.entities.ParticleEntity
 import io.github.some_example_name.old.entities.SimEntity
 import kotlin.math.round
@@ -52,11 +53,11 @@ class RenderSystem(
                     FPS: ${Gdx.graphics.framesPerSecond}
                     UPS: ${simEntity.ups}
                     Update Time: ${round(1e5f / simEntity.ups) / 100f} ms
-                    Cells: ${cellEntity.cellLastId - cellEntity.deadCellsStackAmount}
-                    Particles: ${particleEntity.particleLastId - particleEntity.deadParticlesStackAmount}
-                    Links ${linkEntity.linksLastId - linkEntity.deadLinksStackAmount}
-                    NeuronImpulseInput ${if (simEntity.grabbedCell != -1) cellEntity.neuronImpulseInput[simEntity.grabbedCell] else "0.0"}
-                    NeuronImpulseOutput ${if (simEntity.grabbedCell != -1) cellEntity.neuronImpulseOutput[simEntity.grabbedCell] else "0.0"}
+                    Cells: ${cellEntity.lastId - cellEntity.deadStack.size + 1}
+                    Particles: ${particleEntity.lastId - particleEntity.deadStack.size + 1}
+                    Links ${linkEntity.lastId - linkEntity.deadStack.size + 1}
+                    NeuronImpulseInput ${if (simEntity.grabbedCell != -1) cellEntity.getNeuronImpulseInput(simEntity.grabbedCell) else "0.0"}
+                    NeuronImpulseOutput ${if (simEntity.grabbedCell != -1) cellEntity.getNeuronImpulseOutput(simEntity.grabbedCell) else "0.0"}
                 """.trimIndent(),
             30f,
             140f

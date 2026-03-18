@@ -1,13 +1,8 @@
-package io.github.some_example_name.old.systems.genomics.genome.json.write
+package io.github.some_example_name.old.systems.genomics.genome
 
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.utils.Json
 import com.badlogic.gdx.utils.JsonValue
-import io.github.some_example_name.old.systems.genomics.genome.Action
-import io.github.some_example_name.old.systems.genomics.genome.CellAction
-import io.github.some_example_name.old.systems.genomics.genome.Genome
-import io.github.some_example_name.old.systems.genomics.genome.GenomeStage
-import io.github.some_example_name.old.systems.genomics.genome.LinkData
 import kotlin.collections.iterator
 
 

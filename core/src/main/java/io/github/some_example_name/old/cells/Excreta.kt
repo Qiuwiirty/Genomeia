@@ -7,7 +7,8 @@ import kotlin.math.sin
 class Excreta: Cell(
     defaultColor = brownColors.first(),
     cellTypeId = 9,
-    isDirected = true
+    isDirected = true,
+    isNeural = true
 ) {
 
     override fun doOnTick(index: Int, threadId: Int) = with(cellEntity) {

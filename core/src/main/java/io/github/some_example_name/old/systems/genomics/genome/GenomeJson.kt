@@ -1,12 +1,10 @@
-package io.github.some_example_name.old.systems.genomics.genome.json
+package io.github.some_example_name.old.systems.genomics.genome
 
 import com.badlogic.gdx.Application
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.utils.Json
 import com.badlogic.gdx.utils.JsonWriter
-import io.github.some_example_name.old.systems.genomics.genome.json.read.CreatureJsonRead
-import io.github.some_example_name.old.systems.genomics.genome.json.write.CreatureJsonWrite
 import java.io.File
 
 class GenomeJsonReader() {

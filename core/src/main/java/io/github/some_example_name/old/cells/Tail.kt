@@ -7,12 +7,13 @@ import kotlin.math.sin
 
 class Tail: Cell(
     defaultColor = blueColors.first(),
-    cellTypeId = 3
+    cellTypeId = 3,
+    isNeural = true
 ) {
 
     override fun doOnTick(index: Int, threadId: Int) = with(cellEntity) {
         if (energy[index] > 0) {
-            var impulse = neuronImpulseOutput[index]
+            var impulse = getNeuronImpulseOutput(index)
             if (impulse < 0f) impulse = 0f
             if (impulse > 1f) impulse = 1f
 //            if (speed[index] < impulse) speed[index] += 0.012f else if (speed[index] > impulse) speed[index] -= 0.012f
@@ -32,7 +33,7 @@ class Tail: Cell(
             val vy = getVy(index)
             setVx(index, vx + directionX / 2/* * cm.speed[index]*/ * tailMaxSpeedCoefficient)
             setVy(index, vy + directionY / 2/* * cm.speed[index]*/ * tailMaxSpeedCoefficient)
-            energy[index] -= substrateSettings.cellsSettings[cellType[index] + 1].energyActionCost
+            energy[index] -= substrateSettings.cellsSettings[cellType[index].toInt()].energyActionCost
         }
     }
 }

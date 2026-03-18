@@ -5,12 +5,12 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.utils.Json
 import com.badlogic.gdx.utils.JsonWriter
-import io.github.some_example_name.old.systems.genomics.genome.json.GenomeJsonReader
+import io.github.some_example_name.old.systems.genomics.genome.GenomeJsonReader
 import java.io.File
 
 data class GlobalSimulationSettings(
     val amountOfSolarEnergy: Float = 0.06f,
-    val viscosityOfTheEnvironment: Float = 0.05f,
+    val viscosityOfTheEnvironment: Float = 0.03f,
     val tailMaxSpeedCoefficient: Float = 1.0f,
     val producerRestoreTimeTickCoefficient: Float = 4f,
     val amountOfFoodEnergy: Float = 4f,
@@ -20,16 +20,11 @@ data class GlobalSimulationSettings(
     val rateOfPheromoneDegradation: Float = 1.6e-4f,
     val theNumberOfTicksHungryCellDies: Int = 200,
     val gravity: Float = 0.0f,
+    val linkMaxLength: Float = 3f,
     val cellsSettings: Map<String, CellSettings> = defaultCellSettingsMap()
 )
 
 fun defaultCellSettingsMap() = mapOf(
-    "Organic" to CellSettings(
-        maxEnergy = 5f,
-        cellStiffness = 2f,
-        linkStiffness = 0.025f,
-        energyActionCost = 0f
-    ),
     "Leaf" to CellSettings(
         maxEnergy = 5f,
         cellStiffness = 2f,

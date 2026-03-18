@@ -8,11 +8,11 @@ class Punisher : Cell(
 ) {
 
     override fun onContact(index: Int, indexCollided: Int, threadId: Int) = with(cellEntity) {
-        if (organismIndex[index] != organismIndex[indexCollided] &&
-            cellType[indexCollided] != -1 &&
-            cellType[indexCollided] != 2 &&
-            cellType[indexCollided] != 24) {
-            val maxEnergy = substrateSettings.cellsSettings[cellType[index] + 1].maxEnergy
+        if (organIndex[index] != organIndex[indexCollided] &&
+            cellType[indexCollided].toInt() != -1 &&
+            cellType[indexCollided].toInt() != 2 &&
+            cellType[indexCollided].toInt() != 24) {
+            val maxEnergy = substrateSettings.cellsSettings[cellType[index].toInt()].maxEnergy
             if (energy[index] >= maxEnergy) {
                 energy[index] -= maxEnergy
                 //TODO command to delete cell

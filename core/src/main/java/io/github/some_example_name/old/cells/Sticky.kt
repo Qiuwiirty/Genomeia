@@ -7,11 +7,12 @@ import kotlin.collections.get
 
 class Sticky: Cell(
     defaultColor = pinkColors[3],
-    cellTypeId = 11
+    cellTypeId = 11,
+    isNeural = true
 ) {
 
     override fun onContact(index: Int, indexCollided: Int, threadId: Int) = with(cellEntity) {
-        if (cellType[index] == 11 && activation(cellEntity, index, neuronImpulseInput[index]) < 1f) {
+        if (cellType[index].toInt() == 11 && activation(index, getNeuronImpulseInput(index)) < 1f) {
 //            addStickyLink(id, collidedId, distance, threadId)
 //            addLinks[threadId].add(
 //                AddLink(
@@ -28,4 +29,26 @@ class Sticky: Cell(
             return
         }
     }
+
+    override fun doOnTick(index: Int, threadId: Int) {
+//        TODO
+//    if (isStickyLink[linkId] && !isNeuronLink[linkId]) {
+//        if (cellType[linkCell1] == 11 && activation(
+//                this,
+//                linkCell2,
+//                neuronImpulseOutput[linkCell2]
+//            ) >= 1
+//        ) {
+//            addToDeleteList(threadId, linkId)
+//        } else if (cellType[linkCell2] == 11 && activation(
+//                this,
+//                linkCell2,
+//                neuronImpulseOutput[linkCell2]
+//            ) >= 1
+//        ) {
+//            addToDeleteList(threadId, linkId)
+//        }
+//    }
+    }
+
 }

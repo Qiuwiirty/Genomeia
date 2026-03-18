@@ -124,6 +124,7 @@ class SimulationScreen(
 
 
     override fun render(delta: Float) {
+        Gdx.gl.glClearColor(0.10f, 0.12f, 0.14f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
@@ -132,7 +133,6 @@ class SimulationScreen(
 
             camera.zoom = newZoom
             camera.update()
-
         }
 
         renderSystem.drawShader(camera)
