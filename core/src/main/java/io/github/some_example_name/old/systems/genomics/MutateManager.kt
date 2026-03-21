@@ -81,7 +81,7 @@ class MutateManager(
                 //TODO придумать как выприямить все линки, если мышца превратиалсь в дргую клетку
             }
 
-            action.color?.let { Color.rgba8888(it) }
+            action.color?.let { setColor(index, it.toIntBits()) }
 
             if (lastCell.isNeural && newCell.isNeural) {
                 action.funActivation?.let { setActivationFuncType(index, it.toByte()) }

@@ -50,6 +50,13 @@ class RenderSystem(
 //
 //        for (linkId in 0..linkEntity.lastId) {
 //            if (linkEntity.isAlive[linkId]) {
+//
+//                if (linkEntity.isNeuronLink[linkId]) {
+//                    shapeRenderer.color = Color.CYAN
+//                } else {
+//                    shapeRenderer.color = Color.WHITE
+//                }
+//
 //                val c1 = linkEntity.links1[linkId]
 //                val c2 = linkEntity.links2[linkId]
 //                shapeRenderer.line(cellEntity.getX(c1), cellEntity.getY(c1), cellEntity.getX(c2), cellEntity.getY(c2))

@@ -39,12 +39,16 @@ class CellSystem(
                 val impulse = activation(cellIndex, neuronImpulseInput[cellIndex])
                 neuronImpulseOutput[cellIndex] = impulse
             }
+        } else {
+            neuronImpulseOutput[cellIndex] = neuronImpulseInput[cellIndex]
         }
 
         cellList[cellType[cellIndex].toInt()].doOnTick(index = cellIndex, threadId = threadId)
 
         if (isNeural) {
             neuronImpulseInput[cellIndex] = if (getIsSum(cellIndex)) 0f else 1f
+        } else {
+            neuronImpulseInput[cellIndex] = 0f
         }
 
         genomicTransformations(cellIndex, threadId)
